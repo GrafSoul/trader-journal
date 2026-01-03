@@ -1,6 +1,9 @@
 # Progress Tracker
 
 ## Completed
+[2026-01-01 12:14:00] - Создана полная спецификация Supabase Auth (AUTH_SPECIFICATION.md)
+[2026-01-01 12:14:00] - Обновлены все auth endpoints в RTK_QUERY_API.md
+[2026-01-01 12:14:00] - Добавлены Zod схемы валидации для всех auth форм
 [2026-01-01 11:55:00] - Создан IMPLEMENTATION_PLAN.md в корне проекта
 [2026-01-01 11:49:00] - Уточнены требования: HeroUI, i18n RU/EN, MVP scope
 [2026-01-01 11:23:00] - Memory Bank инициализирован
@@ -9,7 +12,7 @@
 
 ## Current Sprint
 - [x] Уточнить открытые вопросы с пользователем
-- [ ] Обновить документацию с HeroUI и i18n
+- [x] Обновить документацию с HeroUI и i18n
 - [ ] Инициализировать проект (Vite + React + TS)
 - [ ] Настроить HeroUI + TailwindCSS v4
 - [ ] Настроить i18next (RU/EN)

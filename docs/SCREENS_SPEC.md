@@ -7,6 +7,9 @@
 | `/auth/login` | LoginPage | No | Вход в систему |
 | `/auth/register` | RegisterPage | No | Регистрация |
 | `/auth/forgot-password` | ForgotPasswordPage | No | Восстановление пароля |
+| `/auth/reset-password` | ResetPasswordPage | No | Сброс пароля (по ссылке из email) |
+| `/auth/callback` | CallbackPage | No | Обработка redirects от Supabase |
+| `/auth/confirm` | ConfirmPage | No | "Проверьте email" страница |
 | `/` | DashboardPage | Yes | Главный экран (redirect from /) |
 | `/dashboard` | DashboardPage | Yes | Dashboard с метриками |
 | `/trades` | TradesPage | Yes | Список сделок |
@@ -35,9 +38,25 @@
   - "Forgot password?" link
   - "Register" link
 
-**Validation:**
-- Email: valid email format
-- Password: required, min 6 chars
+**Validation (Zod Schema):**
+```typescript
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, 'Email обязателен')
+    .email('Неверный формат email'),
+  password: z
+    .string()
+    .min(1, 'Пароль обязателен')
+    .min(6, 'Минимум 6 символов'),
+  rememberMe: z.boolean().optional(),
+});
+```
+
+| Поле | Правила | Сообщения об ошибках |
+|------|---------|--------------------|
+| email | required, email format | "Email обязателен", "Неверный формат email" |
+| password | required, min 6 | "Пароль обязателен", "Минимум 6 символов" |
 
 **Actions:**
 - Submit → Supabase signInWithPassword
@@ -59,10 +78,34 @@
   - Submit button
   - "Already have account?" link
 
-**Validation:**
-- Email: valid email format
-- Password: min 8 chars, uppercase, lowercase, number
-- Confirm password: must match
+**Validation (Zod Schema):**
+```typescript
+const registerSchema = z.object({
+  email: z
+    .string()
+    .min(1, 'Email обязателен')
+    .email('Неверный формат email'),
+  password: z
+    .string()
+    .min(1, 'Пароль обязателен')
+    .min(8, 'Минимум 8 символов')
+    .regex(/[A-Z]/, 'Нужна хотя бы 1 заглавная буква')
+    .regex(/[a-z]/, 'Нужна хотя бы 1 строчная буква')
+    .regex(/[0-9]/, 'Нужна хотя бы 1 цифра'),
+  confirmPassword: z
+    .string()
+    .min(1, 'Подтвердите пароль'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Пароли не совпадают',
+  path: ['confirmPassword'],
+});
+```
+
+| Поле | Правила | Сообщения об ошибках |
+|------|---------|--------------------|
+| email | required, email format | "Email обязателен", "Неверный формат email" |
+| password | required, min 8, uppercase, lowercase, digit | "Минимум 8 символов", "Нужна заглавная", "Нужна строчная", "Нужна цифра" |
+| confirmPassword | required, must match password | "Подтвердите пароль", "Пароли не совпадают" |
 
 **Actions:**
 - Submit → Supabase signUp
@@ -71,7 +114,81 @@
 
 ---
 
-### 3. Dashboard Page (`/dashboard`)
+### 3. Forgot Password Page (`/auth/forgot-password`)
+
+**Layout:** AuthLayout
+
+**Components:**
+- Logo
+- ForgotPasswordForm
+  - Email input
+  - Submit button
+  - "Back to login" link
+
+**Validation (Zod Schema):**
+```typescript
+const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, 'Email обязателен')
+    .email('Неверный формат email'),
+});
+```
+
+| Поле | Правила | Сообщения об ошибках |
+|------|---------|--------------------|
+| email | required, email format | "Email обязателен", "Неверный формат email" |
+
+**Actions:**
+- Submit → Supabase resetPasswordForEmail
+- Success → show "Ссылка отправлена на email" message
+- Error → show toast
+
+---
+
+### 4. Reset Password Page (`/auth/reset-password`)
+
+**Layout:** AuthLayout
+
+**Components:**
+- Logo
+- ResetPasswordForm
+  - New password input
+  - Confirm password input
+  - Submit button
+
+**Validation (Zod Schema):**
+```typescript
+const resetPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(1, 'Пароль обязателен')
+    .min(8, 'Минимум 8 символов')
+    .regex(/[A-Z]/, 'Нужна хотя бы 1 заглавная буква')
+    .regex(/[a-z]/, 'Нужна хотя бы 1 строчная буква')
+    .regex(/[0-9]/, 'Нужна хотя бы 1 цифра'),
+  confirmPassword: z
+    .string()
+    .min(1, 'Подтвердите пароль'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Пароли не совпадают',
+  path: ['confirmPassword'],
+});
+```
+
+| Поле | Правила | Сообщения об ошибках |
+|------|---------|--------------------|
+| password | required, min 8, uppercase, lowercase, digit | "Минимум 8 символов", "Нужна заглавная"... |
+| confirmPassword | required, must match | "Подтвердите пароль", "Пароли не совпадают" |
+
+**Actions:**
+- Submit → Supabase updateUser({ password })
+- Success → redirect to /auth/login with success message
+- Error → show toast
+
+---
+
+### 5. Dashboard Page (`/dashboard`)
 
 **Layout:** MainLayout (sidebar + header)
 

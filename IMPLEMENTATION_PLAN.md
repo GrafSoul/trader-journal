@@ -110,8 +110,13 @@
 | 3.2.2 | Создать LoginForm | ⬜ TODO | - |
 | 3.2.3 | Создать RegisterForm | ⬜ TODO | - |
 | 3.2.4 | Создать ForgotPasswordForm | ⬜ TODO | - |
-| 3.2.5 | Создать LoginPage | ⬜ TODO | - |
-| 3.2.6 | Создать RegisterPage | ⬜ TODO | - |
+| 3.2.5 | Создать ResetPasswordForm | ⬜ TODO | - |
+| 3.2.6 | Создать LoginPage | ⬜ TODO | - |
+| 3.2.7 | Создать RegisterPage | ⬜ TODO | - |
+| 3.2.8 | Создать ForgotPasswordPage | ⬜ TODO | - |
+| 3.2.9 | Создать ResetPasswordPage | ⬜ TODO | - |
+| 3.2.10 | Создать CallbackPage (Supabase redirects) | ⬜ TODO | - |
+| 3.2.11 | Создать ConfirmPage ("Проверьте email") | ⬜ TODO | - |
 
 ### 3.3 Валидация
 | # | Задача | Статус | Дата |
@@ -320,6 +325,7 @@
 
 | Дата | Изменение |
 |------|-----------|
+| 2026-01-01 | Добавлена полная спецификация Supabase Auth |
 | 2026-01-01 | Создан план реализации |
 
 ---

@@ -17,73 +17,131 @@ export const api = createApi({
 
 ## Auth API
 
+> Полная спецификация Auth API см. в [AUTH_SPECIFICATION.md](./AUTH_SPECIFICATION.md)
+
 ```typescript
 // src/services/authApi.ts
-import { api } from './api'
+import { api } from './api';
+import { supabase } from '@/lib/supabase';
+import type { User, Session } from '@supabase/supabase-js';
+
+interface AuthResponse {
+  user: User | null;
+  session: Session | null;
+}
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     // Get current session
     getSession: builder.query<Session | null, void>({
       queryFn: async () => {
-        const { data, error } = await supabase.auth.getSession()
-        if (error) return { error }
-        return { data: data.session }
+        const { data, error } = await supabase.auth.getSession();
+        if (error) return { error: { message: error.message } };
+        return { data: data.session };
       },
     }),
 
-    // Sign in
-    signIn: builder.mutation<AuthResponse, SignInCredentials>({
+    // Get current user
+    getUser: builder.query<User | null, void>({
+      queryFn: async () => {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) return { error: { message: error.message } };
+        return { data: data.user };
+      },
+    }),
+
+    // Sign in with email/password
+    signIn: builder.mutation<AuthResponse, { email: string; password: string }>({
       queryFn: async ({ email, password }) => {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
-        })
-        if (error) return { error }
-        return { data }
+        });
+        if (error) return { error: { message: error.message, code: error.code } };
+        return { data };
       },
+      invalidatesTags: ['Profile'],
     }),
 
-    // Sign up
-    signUp: builder.mutation<AuthResponse, SignUpCredentials>({
+    // Sign up with email/password
+    signUp: builder.mutation<AuthResponse, { email: string; password: string }>({
       queryFn: async ({ email, password }) => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-        })
-        if (error) return { error }
-        return { data }
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (error) return { error: { message: error.message, code: error.code } };
+        return { data };
       },
     }),
 
     // Sign out
     signOut: builder.mutation<void, void>({
       queryFn: async () => {
-        const { error } = await supabase.auth.signOut()
-        if (error) return { error }
-        return { data: undefined }
+        const { error } = await supabase.auth.signOut();
+        if (error) return { error: { message: error.message } };
+        return { data: undefined };
       },
       invalidatesTags: ['Profile', 'Trade', 'Stats'],
     }),
 
-    // Reset password
-    resetPassword: builder.mutation<void, string>({
+    // Request password reset email
+    resetPasswordRequest: builder.mutation<void, string>({
       queryFn: async (email) => {
-        const { error } = await supabase.auth.resetPasswordForEmail(email)
-        if (error) return { error }
-        return { data: undefined }
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        });
+        if (error) return { error: { message: error.message, code: error.code } };
+        return { data: undefined };
+      },
+    }),
+
+    // Update password (after reset or logged in)
+    updatePassword: builder.mutation<User, string>({
+      queryFn: async (password) => {
+        const { data, error } = await supabase.auth.updateUser({ password });
+        if (error) return { error: { message: error.message, code: error.code } };
+        return { data: data.user };
+      },
+    }),
+
+    // Update email
+    updateEmail: builder.mutation<User, string>({
+      queryFn: async (email) => {
+        const { data, error } = await supabase.auth.updateUser({ email });
+        if (error) return { error: { message: error.message, code: error.code } };
+        return { data: data.user };
+      },
+    }),
+
+    // Resend confirmation email
+    resendConfirmation: builder.mutation<void, string>({
+      queryFn: async (email) => {
+        const { error } = await supabase.auth.resend({
+          type: 'signup',
+          email,
+        });
+        if (error) return { error: { message: error.message, code: error.code } };
+        return { data: undefined };
       },
     }),
   }),
-})
+});
 
 export const {
   useGetSessionQuery,
+  useGetUserQuery,
   useSignInMutation,
   useSignUpMutation,
   useSignOutMutation,
-  useResetPasswordMutation,
-} = authApi
+  useResetPasswordRequestMutation,
+  useUpdatePasswordMutation,
+  useUpdateEmailMutation,
+  useResendConfirmationMutation,
+} = authApi;
 ```
 
 ## Profile API

@@ -56,6 +56,7 @@ npm run build
 - [`docs/SCREENS_SPEC.md`](docs/SCREENS_SPEC.md) — спецификация экранов
 - [`docs/RTK_QUERY_API.md`](docs/RTK_QUERY_API.md) — API reference
 - [`docs/METATRADER_IMPORT.md`](docs/METATRADER_IMPORT.md) — импорт из MT4/MT5
+- [`docs/AUTH_SPECIFICATION.md`](docs/AUTH_SPECIFICATION.md) — Supabase Auth спецификация
 
 ## Project Status
 
