@@ -7,6 +7,8 @@ import {
   createTrade,
   updateTrade,
   deleteTrade,
+  bulkImportTrades,
+  type ImportResult,
 } from "@/services/tradeService";
 
 // ==================== INITIAL STATE ====================
@@ -121,6 +123,21 @@ const tradeSlice = createSlice({
         }
       })
       .addCase(deleteTrade.rejected, (state, action) => {
+        state.status = Statuses.FAILED;
+        state.error = action.payload as string;
+      });
+
+    // ==================== BULK IMPORT TRADES ====================
+    builder
+      .addCase(bulkImportTrades.pending, (state) => {
+        state.status = Statuses.LOADING;
+        state.error = null;
+      })
+      .addCase(bulkImportTrades.fulfilled, (state, action: PayloadAction<ImportResult>) => {
+        state.status = Statuses.SUCCEEDED;
+        state.trades = [...action.payload.imported, ...state.trades];
+      })
+      .addCase(bulkImportTrades.rejected, (state, action) => {
         state.status = Statuses.FAILED;
         state.error = action.payload as string;
       });

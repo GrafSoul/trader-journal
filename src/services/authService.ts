@@ -59,19 +59,30 @@ export const signIn = createAsyncThunk<AuthResponse, SignInCredentials>(
 // ==================== SIGN UP ====================
 export const signUp = createAsyncThunk<AuthResponse, SignUpCredentials>(
   types.AUTH_SIGN_UP,
-  async ({ email, password }, { rejectWithValue }) => {
+  async ({ email, password, displayName }, { rejectWithValue }) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            display_name: displayName,
+          },
         },
       });
 
       if (error) {
         console.warn('❌ Error signing up:', error);
         throw new Error(error.message);
+      }
+
+      // Update profile with display name after signup
+      if (data.user) {
+        await supabase
+          .from('profiles')
+          .update({ display_name: displayName } as never)
+          .eq('id', data.user.id);
       }
 
       return data;
@@ -126,12 +137,29 @@ export const resetPasswordRequest = createAsyncThunk<void, string>(
   }
 );
 
-// ==================== UPDATE PASSWORD ====================
-export const updatePassword = createAsyncThunk<User, string>(
+// ==================== UPDATE PASSWORD (with current password verification) ====================
+export const updatePassword = createAsyncThunk<User, { currentPassword: string; newPassword: string }>(
   types.AUTH_UPDATE_PASSWORD,
-  async (password, { rejectWithValue }) => {
+  async ({ currentPassword, newPassword }, { rejectWithValue }) => {
     try {
-      const { data, error } = await supabase.auth.updateUser({ password });
+      // First verify current password by re-authenticating
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user?.email) {
+        throw new Error('User not found');
+      }
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+
+      if (signInError) {
+        throw new Error('currentPasswordInvalid');
+      }
+
+      // Update to new password
+      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
 
       if (error) {
         console.warn('❌ Error updating password:', error);
@@ -141,6 +169,28 @@ export const updatePassword = createAsyncThunk<User, string>(
       return data.user;
     } catch (error) {
       console.warn('❌ updatePassword failed:', error);
+      return rejectWithValue(
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+    }
+  }
+);
+
+// ==================== RESET PASSWORD (via email recovery link) ====================
+export const resetPassword = createAsyncThunk<User, string>(
+  types.AUTH_RESET_PASSWORD,
+  async (password, { rejectWithValue }) => {
+    try {
+      const { data, error } = await supabase.auth.updateUser({ password });
+
+      if (error) {
+        console.warn('❌ Error resetting password:', error);
+        throw new Error(error.message);
+      }
+
+      return data.user;
+    } catch (error) {
+      console.warn('❌ resetPassword failed:', error);
       return rejectWithValue(
         error instanceof Error ? error.message : 'Unknown error'
       );

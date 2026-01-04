@@ -12,34 +12,31 @@ export interface Database {
       profiles: {
         Row: {
           id: string;
-          email: string;
           display_name: string | null;
-          avatar_url: string | null;
-          default_currency: string;
+          base_currency: string;
           timezone: string;
-          language: string;
+          risk_default_percent: number | null;
+          risk_default_amount: number | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id: string;
-          email: string;
           display_name?: string | null;
-          avatar_url?: string | null;
-          default_currency?: string;
+          base_currency?: string;
           timezone?: string;
-          language?: string;
+          risk_default_percent?: number | null;
+          risk_default_amount?: number | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          email?: string;
           display_name?: string | null;
-          avatar_url?: string | null;
-          default_currency?: string;
+          base_currency?: string;
           timezone?: string;
-          language?: string;
+          risk_default_percent?: number | null;
+          risk_default_amount?: number | null;
           created_at?: string;
           updated_at?: string;
         };

@@ -19,7 +19,8 @@
         "notFound": "Page not found",
         "goHome": "Go home",
         "comingSoon": "Coming soon...",
-        "viewAll": "View all"
+        "viewAll": "View all",
+        "clear": "Clear"
     },
     "auth": {
         "login": "Login",
@@ -28,6 +29,8 @@
         "email": "Email",
         "password": "Password",
         "confirmPassword": "Confirm password",
+        "displayName": "Your name",
+        "displayNamePlaceholder": "Enter your name",
         "forgotPassword": "Forgot password?",
         "resetPassword": "Reset password",
         "newPassword": "New password",
@@ -56,6 +59,9 @@
         "passwordRequired": "Password is required",
         "passwordRequirements": "Password requirements:",
         "passwordMin": "At least 8 characters",
+        "passwordsNotMatch": "Passwords do not match",
+        "displayNameMin": "Name must be at least 2 characters",
+        "displayNameMax": "Name must be less than 50 characters",
         "passwordUppercase": "Uppercase letter (A-Z)",
         "passwordLowercase": "Lowercase letter (a-z)",
         "passwordNumber": "Number (0-9)",
@@ -66,6 +72,7 @@
     },
     "errors": {
         "unknown": "An error occurred",
+        "currentPasswordInvalid": "Current password is incorrect",
         "network": "Network error",
         "invalidCredentials": "Invalid email or password",
         "emailNotConfirmed": "Email not confirmed",
@@ -168,6 +175,11 @@
     "settings": {
         "title": "Settings",
         "profile": "Profile",
+        "profileDescription": "Manage your account information",
+        "appearance": "Appearance",
+        "appearanceDescription": "Customize the look and feel",
+        "security": "Security",
+        "securityDescription": "Manage your password and security settings",
         "language": "Language",
         "theme": "Theme",
         "light": "Light",
@@ -175,9 +187,30 @@
         "system": "System",
         "changePassword": "Change password",
         "changeEmail": "Change email",
-        "currentPassword": "Current password"
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm password",
+        "email": "Email",
+        "displayName": "Display name",
+        "updateProfile": "Update profile",
+        "updatePassword": "Update password",
+        "passwordUpdated": "Password updated successfully",
+        "profileUpdated": "Profile updated successfully",
+        "dangerZone": "Danger zone",
+        "deleteAccount": "Delete account",
+        "deleteAccountDescription": "Once you delete your account, there is no going back. Please be certain.",
+        "exportData": "Export data",
+        "exportDataDescription": "Download all your trades and data",
+        "exportSuccess": "Data exported successfully",
+        "importData": "Import data",
+        "importDataDescription": "Restore trades from a previously exported file",
+        "importSuccess": "{{count}} trades imported successfully",
+        "importError": "Failed to import data. Check file format.",
+        "dataManagement": "Data management",
+        "dataManagementDescription": "Export or import your trading data"
     },
     "dashboard": {
+        "greeting": "Hello, {{name}}!",
         "title": "Dashboard",
         "totalTrades": "Total trades",
         "winRate": "Win Rate",
@@ -191,11 +224,18 @@
     },
     "import": {
         "title": "Import trades",
+        "metatrader": "MetaTrader 4/5",
+        "metatraderDescription": "Import trades from MetaTrader HTML report or CSV file",
         "dropzone": "Drop file here or click to select",
-        "supportedFormats": "Supported formats: CSV (MetaTrader)",
+        "supportedFormats": "HTML, CSV, XLS, XLSX",
         "importing": "Importing...",
-        "success": "Imported {{count}} trades",
+        "success": "Imported {{imported}} trades, skipped {{skipped}} duplicates",
         "error": "Import error",
-        "duplicates": "Skipped duplicates: {{count}}"
+        "tradesFound": "{{count}} trades found",
+        "importTrades": "Import {{count}} trades",
+        "andMore": "... and {{count}} more",
+        "unsupportedFormat": "Unsupported file format",
+        "noTradesFound": "No trades found in the file",
+        "parseError": "Error parsing file"
     }
 }

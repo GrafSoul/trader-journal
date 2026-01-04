@@ -13,6 +13,10 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
+  displayName: z
+    .string()
+    .min(2, 'validation.displayNameMin')
+    .max(50, 'validation.displayNameMax'),
   email: z
     .string()
     .min(1, 'validation.emailRequired')

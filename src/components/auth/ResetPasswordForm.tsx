@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Button, Input } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { updatePassword, signOut } from "@/services/authService";
+import { resetPassword, signOut } from "@/services/authService";
 import { clearAuthError, resetAuthStatus } from "@/store/slices/authSlice";
 import { Statuses } from "@/store/statuses/statuses";
 import {
@@ -63,7 +63,7 @@ export const ResetPasswordForm = () => {
 
   const onSubmit = (data: ResetPasswordFormData) => {
     setIsSubmitted(true);
-    dispatch(updatePassword(data.password));
+    dispatch(resetPassword(data.password));
   };
 
   const isLoading = status === Statuses.LOADING;

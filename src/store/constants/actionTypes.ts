@@ -5,6 +5,7 @@ export const AUTH_SIGN_UP = 'auth/signUp';
 export const AUTH_SIGN_OUT = 'auth/signOut';
 export const AUTH_RESET_PASSWORD_REQUEST = 'auth/resetPasswordRequest';
 export const AUTH_UPDATE_PASSWORD = 'auth/updatePassword';
+export const AUTH_RESET_PASSWORD = 'auth/resetPassword';
 export const AUTH_UPDATE_EMAIL = 'auth/updateEmail';
 export const AUTH_RESEND_CONFIRMATION = 'auth/resendConfirmation';
 

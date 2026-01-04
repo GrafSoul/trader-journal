@@ -8,5 +8,16 @@ export default {
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: "class",
-  plugins: [heroui()],
+  plugins: [
+    heroui({
+      themes: {
+        dark: {
+          colors: {
+            background: "#1a1a1a",
+            content1: "#141414",
+          },
+        },
+      },
+    }),
+  ],
 };

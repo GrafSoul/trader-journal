@@ -30,12 +30,14 @@ export const RegisterForm = () => {
     resolver: zodResolver(registerSchema),
     mode: "onChange",
     defaultValues: {
+      displayName: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
+  const watchDisplayName = watch("displayName");
   const watchPassword = watch("password");
   const watchEmail = watch("email");
   const watchConfirmPassword = watch("confirmPassword");
@@ -55,7 +57,13 @@ export const RegisterForm = () => {
   }, [status, user, navigate]);
 
   const onSubmit = (data: RegisterFormData) => {
-    dispatch(signUp({ email: data.email, password: data.password }));
+    dispatch(
+      signUp({
+        email: data.email,
+        password: data.password,
+        displayName: data.displayName,
+      })
+    );
   };
 
   const isLoading = status === Statuses.LOADING;
@@ -69,6 +77,38 @@ export const RegisterForm = () => {
             : error}
         </div>
       )}
+
+      <Input
+        {...register("displayName")}
+        type="text"
+        label={t("auth.displayName")}
+        placeholder={t("auth.displayNamePlaceholder")}
+        isInvalid={!!errors.displayName}
+        errorMessage={
+          errors.displayName && t(errors.displayName.message as string)
+        }
+        isDisabled={isLoading}
+        autoComplete="name"
+        endContent={
+          <div className="flex items-center gap-1">
+            {touchedFields.displayName &&
+              watchDisplayName &&
+              (errors.displayName ? (
+                <AlertCircle size={18} className="text-danger" />
+              ) : (
+                <Check size={18} className="text-success" />
+              ))}
+            {watchDisplayName && (
+              <button
+                type="button"
+                onClick={() => setValue("displayName", "")}
+                className="p-1 hover:bg-default-100 rounded">
+                <X size={16} className="text-default-400" />
+              </button>
+            )}
+          </div>
+        }
+      />
 
       <Input
         {...register("email")}

@@ -29,7 +29,6 @@ const DashboardPage = () => {
   const { trades, status: tradesStatus } = useAppSelector(
     (state) => state.trades
   );
-
   useEffect(() => {
     dispatch(fetchDashboardStats());
     dispatch(fetchTrades(undefined));

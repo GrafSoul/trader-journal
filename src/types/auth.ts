@@ -15,6 +15,7 @@ export interface SignInCredentials {
 export interface SignUpCredentials {
   email: string;
   password: string;
+  displayName: string;
 }
 
 export interface ResetPasswordParams {
@@ -22,7 +23,8 @@ export interface ResetPasswordParams {
 }
 
 export interface UpdatePasswordParams {
-  password: string;
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface UpdateEmailParams {

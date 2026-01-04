@@ -19,7 +19,8 @@
         "notFound": "Страница не найдена",
         "goHome": "На главную",
         "comingSoon": "Скоро...",
-        "viewAll": "Смотреть все"
+        "viewAll": "Смотреть все",
+        "clear": "Очистить"
     },
     "auth": {
         "login": "Вход",
@@ -28,6 +29,8 @@
         "email": "Email",
         "password": "Пароль",
         "confirmPassword": "Подтвердите пароль",
+        "displayName": "Ваше имя",
+        "displayNamePlaceholder": "Введите ваше имя",
         "forgotPassword": "Забыли пароль?",
         "resetPassword": "Сбросить пароль",
         "newPassword": "Новый пароль",
@@ -56,6 +59,9 @@
         "passwordRequired": "Пароль обязателен",
         "passwordRequirements": "Требования к паролю:",
         "passwordMin": "Минимум 8 символов",
+        "passwordsNotMatch": "Пароли не совпадают",
+        "displayNameMin": "Имя должно содержать минимум 2 символа",
+        "displayNameMax": "Имя должно быть не более 50 символов",
         "passwordUppercase": "Заглавная буква (A-Z)",
         "passwordLowercase": "Строчная буква (a-z)",
         "passwordNumber": "Цифра (0-9)",
@@ -66,6 +72,7 @@
     },
     "errors": {
         "unknown": "Произошла ошибка",
+        "currentPasswordInvalid": "Неверный текущий пароль",
         "network": "Ошибка сети",
         "invalidCredentials": "Неверный email или пароль",
         "emailNotConfirmed": "Email не подтверждён",
@@ -168,6 +175,11 @@
     "settings": {
         "title": "Настройки",
         "profile": "Профиль",
+        "profileDescription": "Управление данными аккаунта",
+        "appearance": "Внешний вид",
+        "appearanceDescription": "Настройка оформления",
+        "security": "Безопасность",
+        "securityDescription": "Управление паролем и настройками безопасности",
         "language": "Язык",
         "theme": "Тема",
         "light": "Светлая",
@@ -175,9 +187,30 @@
         "system": "Системная",
         "changePassword": "Сменить пароль",
         "changeEmail": "Сменить email",
-        "currentPassword": "Текущий пароль"
+        "currentPassword": "Текущий пароль",
+        "newPassword": "Новый пароль",
+        "confirmPassword": "Подтвердите пароль",
+        "email": "Email",
+        "displayName": "Имя пользователя",
+        "updateProfile": "Обновить профиль",
+        "updatePassword": "Обновить пароль",
+        "passwordUpdated": "Пароль успешно обновлён",
+        "profileUpdated": "Профиль успешно обновлён",
+        "dangerZone": "Опасная зона",
+        "deleteAccount": "Удалить аккаунт",
+        "deleteAccountDescription": "После удаления аккаунта восстановить данные будет невозможно.",
+        "exportData": "Экспорт данных",
+        "exportDataDescription": "Скачать все ваши сделки и данные",
+        "exportSuccess": "Данные успешно экспортированы",
+        "importData": "Импорт данных",
+        "importDataDescription": "Восстановить сделки из ранее экспортированного файла",
+        "importSuccess": "{{count}} сделок успешно импортировано",
+        "importError": "Не удалось импортировать данные. Проверьте формат файла.",
+        "dataManagement": "Управление данными",
+        "dataManagementDescription": "Экспорт или импорт торговых данных"
     },
     "dashboard": {
+        "greeting": "Привет, {{name}}!",
         "title": "Главная",
         "totalTrades": "Всего сделок",
         "winRate": "Win Rate",
@@ -191,11 +224,18 @@
     },
     "import": {
         "title": "Импорт сделок",
+        "metatrader": "MetaTrader 4/5",
+        "metatraderDescription": "Импорт сделок из HTML отчёта или CSV файла MetaTrader",
         "dropzone": "Перетащите файл сюда или нажмите для выбора",
-        "supportedFormats": "Поддерживаемые форматы: CSV (MetaTrader)",
+        "supportedFormats": "HTML, CSV, XLS, XLSX",
         "importing": "Импорт...",
-        "success": "Импортировано {{count}} сделок",
+        "success": "Импортировано {{imported}} сделок, пропущено {{skipped}} дубликатов",
         "error": "Ошибка импорта",
-        "duplicates": "Пропущено дубликатов: {{count}}"
+        "tradesFound": "Найдено {{count}} сделок",
+        "importTrades": "Импортировать {{count}} сделок",
+        "andMore": "... и ещё {{count}}",
+        "unsupportedFormat": "Неподдерживаемый формат файла",
+        "noTradesFound": "Сделки не найдены в файле",
+        "parseError": "Ошибка при чтении файла"
     }
 }

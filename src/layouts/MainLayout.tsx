@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { Button } from "@heroui/react";
 import { useTranslation } from "react-i18next";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { signOut } from "@/services/authService";
+import { fetchProfile } from "@/services/profileService";
 import { useTheme } from "@/hooks/useTheme";
 import {
   LogOut,
@@ -12,13 +14,19 @@ import {
   TrendingUp,
   Upload,
   Settings,
+  CandlestickChart,
 } from "lucide-react";
 
 export const MainLayout = () => {
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
+  const { profile } = useAppSelector((state) => state.profile);
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+
+  useEffect(() => {
+    dispatch(fetchProfile());
+  }, [dispatch]);
 
   const currentLang = i18n.language?.startsWith("ru") ? "ru" : "en";
 
@@ -42,7 +50,8 @@ export const MainLayout = () => {
     <div className="flex min-h-screen">
       {/* Sidebar */}
       <aside className="hidden w-64 border-r border-divider bg-content1 lg:flex lg:flex-col">
-        <div className="p-4 border-b border-divider">
+        <div className="flex h-[65px] items-center gap-2 px-4 border-b border-divider">
+          <CandlestickChart size={28} className="text-success" />
           <h2 className="text-xl font-bold">{t("common.appName")}</h2>
         </div>
 
@@ -88,25 +97,27 @@ export const MainLayout = () => {
       <main className="flex-1">
         {/* Header */}
         <header className="sticky top-0 z-40 border-b border-divider bg-background/80 backdrop-blur-md">
-          <div className="flex h-16 items-center justify-end px-4">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="flat"
-                size="sm"
-                onPress={toggleLanguage}
-                className="min-w-[70px] font-medium">
-                {currentLang === "ru" ? "EN" : "RU"}
-              </Button>
-
-              <Button
-                variant="flat"
-                size="sm"
-                isIconOnly
-                onPress={toggleTheme}
-                aria-label="Toggle theme">
-                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-              </Button>
-            </div>
+          <div className="flex h-16 items-center justify-end gap-4 px-4">
+            {profile?.display_name && (
+              <span className="text-default-600">
+                {t("dashboard.greeting", { name: profile.display_name })}
+              </span>
+            )}
+            <Button
+              variant="flat"
+              size="sm"
+              onPress={toggleLanguage}
+              className="min-w-[70px] font-medium">
+              {currentLang === "ru" ? "EN" : "RU"}
+            </Button>
+            <Button
+              variant="flat"
+              size="sm"
+              isIconOnly
+              onPress={toggleTheme}
+              aria-label="Toggle theme">
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </Button>
           </div>
         </header>
 

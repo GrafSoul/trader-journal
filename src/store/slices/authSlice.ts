@@ -6,6 +6,7 @@ import {
   signOut,
   resetPasswordRequest,
   updatePassword,
+  resetPassword,
   updateEmail,
 } from '@/services/authService';
 import type { AuthState, User, Session, AuthResponse } from '@/types/auth';
@@ -159,6 +160,21 @@ const authSlice = createSlice({
       .addCase(updatePassword.rejected, (state, action) => {
         state.status = Statuses.FAILED;
         state.error = (action.payload as string) || 'Failed to update password';
+      })
+
+      // ==================== RESET PASSWORD (via email link) ====================
+      .addCase(resetPassword.pending, (state) => {
+        state.status = Statuses.LOADING;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state, action: PayloadAction<User>) => {
+        state.status = Statuses.SUCCEEDED;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.status = Statuses.FAILED;
+        state.error = (action.payload as string) || 'Failed to reset password';
       })
 
       // ==================== UPDATE EMAIL ====================

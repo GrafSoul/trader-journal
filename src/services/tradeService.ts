@@ -161,3 +161,84 @@ export const deleteTrade = createAsyncThunk<string, string>(
     }
   }
 );
+
+// ==================== BULK IMPORT TRADES ====================
+export interface ImportResult {
+  imported: Trade[];
+  skipped: number;
+}
+
+export const bulkImportTrades = createAsyncThunk<ImportResult, CreateTradeDto[]>(
+  types.TRADES_BULK_IMPORT,
+  async (tradesData, { rejectWithValue }) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Fetch existing trades to check for duplicates
+      const { data: existingTrades, error: fetchError } = await supabase
+        .from("trades")
+        .select("symbol, open_time, close_time, volume")
+        .eq("user_id", user.id);
+
+      if (fetchError) {
+        throw new Error(fetchError.message);
+      }
+
+      // Filter out duplicates
+      const uniqueTrades = tradesData.filter(newTrade => {
+        return !existingTrades?.some(existing => 
+          isDuplicate(newTrade, existing)
+        );
+      });
+
+      const skippedCount = tradesData.length - uniqueTrades.length;
+
+      if (uniqueTrades.length === 0) {
+        return { imported: [], skipped: skippedCount };
+      }
+
+      const tradesWithUserId = uniqueTrades.map(trade => ({
+        ...trade,
+        user_id: user.id,
+      }));
+
+      const { data, error } = await supabase
+        .from("trades")
+        .insert(tradesWithUserId as never[])
+        .select();
+
+      if (error) {
+        console.warn("❌ Error importing trades:", error);
+        throw new Error(error.message);
+      }
+
+      return { imported: data as Trade[], skipped: skippedCount };
+    } catch (error) {
+      console.warn("❌ bulkImportTrades failed:", error);
+      return rejectWithValue(
+        error instanceof Error ? error.message : "Unknown error"
+      );
+    }
+  }
+);
+
+function isDuplicate(
+  newTrade: CreateTradeDto,
+  existing: { symbol: string; open_time: string; close_time: string | null; volume: number }
+): boolean {
+  const normalizeTime = (t: string | null | undefined): string => {
+    if (!t) return "";
+    return t.slice(0, 19).replace(/\s/, "T");
+  };
+
+  const sameSymbol = (newTrade.symbol || "").toLowerCase() === (existing.symbol || "").toLowerCase();
+  const sameOpenTime = normalizeTime(newTrade.open_time) === normalizeTime(existing.open_time);
+  const sameCloseTime = normalizeTime(newTrade.close_time) === normalizeTime(existing.close_time);
+  const sameVolume = Math.abs((newTrade.volume || 0) - (existing.volume || 0)) < 0.0001;
+
+  return sameSymbol && sameOpenTime && sameCloseTime && sameVolume;
+}
