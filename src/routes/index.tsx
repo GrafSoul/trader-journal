@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createHashRouter } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
 import { RootLayout } from "@/layouts/RootLayout";
@@ -37,7 +37,7 @@ const withSuspense = (
   </Suspense>
 );
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: "/",
     element: <RootLayout />,

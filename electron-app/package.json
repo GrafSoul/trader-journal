@@ -1,0 +1,53 @@
+{
+    "name": "trader-journal-electron",
+    "version": "1.0.0",
+    "description": "Trader Journal - Trading Diary Desktop App",
+    "main": "main.js",
+    "author": "GrafSoul",
+    "license": "MIT",
+    "scripts": {
+        "start": "electron .",
+        "build": "npm run build:web && electron-builder",
+        "build:web": "cd .. && npm run build && cp -r dist electron-app/",
+        "build:win": "npm run build:web && electron-builder --win",
+        "build:mac": "npm run build:web && electron-builder --mac",
+        "build:all": "npm run build:web && electron-builder --win --mac"
+    },
+    "build": {
+        "appId": "com.grafsoul.trader-journal",
+        "productName": "Trader Journal",
+        "directories": {
+            "output": "release"
+        },
+        "files": [
+            "main.js",
+            "preload.js",
+            "titlebar.js",
+            "dist/**/*"
+        ],
+        "mac": {
+            "category": "public.app-category.finance",
+            "target": [
+                "dmg",
+                "zip"
+            ],
+            "icon": "icons/icon.icns"
+        },
+        "win": {
+            "target": [
+                "nsis",
+                "portable"
+            ],
+            "icon": "icons/icon.ico"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        }
+    },
+    "devDependencies": {
+        "electron": "^33.0.0",
+        "electron-builder": "^25.1.8",
+        "png-to-ico": "^3.0.1"
+    }
+}
