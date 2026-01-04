@@ -1,6 +1,6 @@
 // Custom titlebar injection for Electron
 (function () {
-    const titlebarHTML = `
+  const titlebarHTML = `
     <div id="electron-titlebar">
       <div class="titlebar-drag">
         <span class="titlebar-title">Trader Journal</span>
@@ -31,7 +31,7 @@
     </div>
   `;
 
-    const titlebarCSS = `
+  const titlebarCSS = `
     #electron-titlebar {
       position: fixed;
       top: 0;
@@ -102,61 +102,61 @@
     }
   `;
 
-    // Inject CSS
-    const style = document.createElement('style');
-    style.textContent = titlebarCSS;
-    document.head.appendChild(style);
+  // Inject CSS
+  const style = document.createElement('style');
+  style.textContent = titlebarCSS;
+  document.head.appendChild(style);
 
-    // Inject titlebar HTML
-    const titlebar = document.createElement('div');
-    titlebar.innerHTML = titlebarHTML;
-    document.body.insertBefore(titlebar.firstElementChild, document.body.firstChild);
+  // Inject titlebar HTML
+  const titlebar = document.createElement('div');
+  titlebar.innerHTML = titlebarHTML;
+  document.body.insertBefore(titlebar.firstElementChild, document.body.firstChild);
 
-    // Wire up buttons
-    const btnPin = document.getElementById('btn-pin');
-    const btnMinimize = document.getElementById('btn-minimize');
-    const btnMaximize = document.getElementById('btn-maximize');
-    const btnClose = document.getElementById('btn-close');
+  // Wire up buttons
+  const btnPin = document.getElementById('btn-pin');
+  const btnMinimize = document.getElementById('btn-minimize');
+  const btnMaximize = document.getElementById('btn-maximize');
+  const btnClose = document.getElementById('btn-close');
 
-    if (window.electronAPI) {
-        btnPin.addEventListener('click', async () => {
-            const isOnTop = await window.electronAPI.toggleAlwaysOnTop();
-            btnPin.classList.toggle('active', isOnTop);
-        });
+  if (window.electronAPI) {
+    btnPin.addEventListener('click', async () => {
+      const isOnTop = await window.electronAPI.toggleAlwaysOnTop();
+      btnPin.classList.toggle('active', isOnTop);
+    });
 
-        btnMinimize.addEventListener('click', () => {
-            window.electronAPI.minimizeWindow();
-        });
+    btnMinimize.addEventListener('click', () => {
+      window.electronAPI.minimizeWindow();
+    });
 
-        btnMaximize.addEventListener('click', () => {
-            window.electronAPI.maximizeWindow();
-        });
+    btnMaximize.addEventListener('click', () => {
+      window.electronAPI.maximizeWindow();
+    });
 
-        btnClose.addEventListener('click', () => {
-            window.electronAPI.closeWindow();
-        });
+    btnClose.addEventListener('click', () => {
+      window.electronAPI.closeWindow();
+    });
 
-        // Update maximize button icon on state change
-        window.electronAPI.onWindowStateChanged((state) => {
-            if (state.isMaximized) {
-                btnMaximize.innerHTML = `
+    // Update maximize button icon on state change
+    window.electronAPI.onWindowStateChanged((state) => {
+      if (state.isMaximized) {
+        btnMaximize.innerHTML = `
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="6" y="6" width="12" height="12" rx="1"/>
             <path d="M8 6V5a1 1 0 011-1h10a1 1 0 011 1v10a1 1 0 01-1 1h-1"/>
           </svg>
         `;
-            } else {
-                btnMaximize.innerHTML = `
+      } else {
+        btnMaximize.innerHTML = `
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="4" y="4" width="16" height="16" rx="2"/>
           </svg>
         `;
-            }
-        });
+      }
+    });
 
-        // Init state
-        window.electronAPI.getWindowState().then((state) => {
-            btnPin.classList.toggle('active', state.isAlwaysOnTop);
-        });
-    }
+    // Init state
+    window.electronAPI.getWindowState().then((state) => {
+      btnPin.classList.toggle('active', state.isAlwaysOnTop);
+    });
+  }
 })();

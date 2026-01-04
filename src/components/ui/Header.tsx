@@ -1,7 +1,7 @@
 import { Button, Navbar, NavbarBrand, NavbarContent } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, CandlestickChart } from "lucide-react";
 
 export const Header = () => {
   const { i18n } = useTranslation();
@@ -16,7 +16,8 @@ export const Header = () => {
 
   return (
     <Navbar maxWidth="full" className="border-b border-divider">
-      <NavbarBrand>
+      <NavbarBrand className="gap-2">
+        <CandlestickChart size={28} className="text-success" />
         <p className="text-xl font-bold text-inherit">Trader Journal</p>
       </NavbarBrand>
 
