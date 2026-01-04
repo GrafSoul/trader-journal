@@ -1,14 +1,15 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
-import { Statuses } from "@/store/statuses/statuses";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 export const ProtectedRoute = () => {
   const location = useLocation();
-  const { isAuthenticated, status } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isInitialized } = useAppSelector(
+    (state) => state.auth
+  );
 
-  // Show loading while checking auth
-  if (status === Statuses.LOADING || status === Statuses.IDLE) {
+  // Show loading only during initial auth check
+  if (!isInitialized) {
     return <LoadingScreen />;
   }
 

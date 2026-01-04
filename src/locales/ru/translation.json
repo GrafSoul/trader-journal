@@ -45,18 +45,21 @@
         "backToLogin": "Вернуться к входу",
         "resetPasswordDescription": "Установите новый пароль",
         "passwordUpdated": "Пароль обновлён!",
-        "redirecting": "Перенаправляем..."
+        "redirecting": "Перенаправляем...",
+        "alreadyConfirmed": "Уже подтвердили email?"
     },
     "validation": {
         "required": "Обязательное поле",
         "emailRequired": "Email обязателен",
         "emailInvalid": "Неверный формат email",
         "passwordRequired": "Пароль обязателен",
-        "passwordMin": "Минимум {{min}} символов",
-        "passwordUppercase": "Нужна хотя бы 1 заглавная буква",
-        "passwordLowercase": "Нужна хотя бы 1 строчная буква",
-        "passwordNumber": "Нужна хотя бы 1 цифра",
-        "passwordSymbol": "Нужен хотя бы 1 символ (!@#$%^&* и т.д.)",
+        "passwordRequirements": "Требования к паролю:",
+        "passwordMin": "Минимум 8 символов",
+        "passwordUppercase": "Заглавная буква (A-Z)",
+        "passwordLowercase": "Строчная буква (a-z)",
+        "passwordNumber": "Цифра (0-9)",
+        "passwordSymbol": "Спецсимвол (!@#$%^&*)",
+        "passwordStrong": "Пароль надёжный",
         "passwordMismatch": "Пароли не совпадают",
         "confirmPasswordRequired": "Подтвердите пароль"
     },

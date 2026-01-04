@@ -40,6 +40,7 @@ export interface AuthState {
   user: User | null;
   session: Session | null;
   isAuthenticated: boolean;
+  isInitialized: boolean; // True after first session check
   error: string | null;
   status: StatusType;
 }

@@ -1,6 +1,7 @@
 import { Button, Navbar, NavbarBrand, NavbarContent } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
+import { Sun, Moon } from "lucide-react";
 
 export const Header = () => {
   const { i18n } = useTranslation();
@@ -34,7 +35,7 @@ export const Header = () => {
           isIconOnly
           onPress={toggleTheme}
           aria-label="Toggle theme">
-          {theme === "dark" ? "☀️" : "🌙"}
+          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
         </Button>
       </NavbarContent>
     </Navbar>

@@ -17,6 +17,7 @@ const initialState: AuthState = {
   user: null,
   session: null,
   isAuthenticated: false,
+  isInitialized: false,
   error: null,
   status: Statuses.IDLE,
 };
@@ -41,6 +42,12 @@ const authSlice = createSlice({
       state.error = null;
     },
 
+    // Reset status to IDLE (for form mounting)
+    resetAuthStatus: (state) => {
+      state.status = Statuses.IDLE;
+      state.error = null;
+    },
+
     // Set auth from onAuthStateChange listener
     setAuth: (
       state,
@@ -49,6 +56,7 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.session = action.payload.session;
       state.isAuthenticated = !!action.payload.session;
+      state.isInitialized = true;
       state.status = Statuses.SUCCEEDED;
     },
   },
@@ -64,10 +72,12 @@ const authSlice = createSlice({
         state.session = action.payload;
         state.user = action.payload?.user ?? null;
         state.isAuthenticated = !!action.payload;
+        state.isInitialized = true;
         state.error = null;
       })
       .addCase(getSession.rejected, (state, action) => {
         state.status = Statuses.FAILED;
+        state.isInitialized = true;
         state.error = (action.payload as string) || 'Failed to get session';
       })
 
@@ -170,6 +180,6 @@ const authSlice = createSlice({
 
 // ==================== EXPORTS ====================
 
-export const { clearAuthData, clearAuthError, setAuth } = authSlice.actions;
+export const { clearAuthData, clearAuthError, resetAuthStatus, setAuth } = authSlice.actions;
 
 export default authSlice.reducer;

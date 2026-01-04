@@ -45,18 +45,21 @@
         "backToLogin": "Back to login",
         "resetPasswordDescription": "Set a new password",
         "passwordUpdated": "Password updated!",
-        "redirecting": "Redirecting..."
+        "redirecting": "Redirecting...",
+        "alreadyConfirmed": "Already confirmed your email?"
     },
     "validation": {
         "required": "Required field",
         "emailRequired": "Email is required",
         "emailInvalid": "Invalid email format",
         "passwordRequired": "Password is required",
-        "passwordMin": "Minimum {{min}} characters",
-        "passwordUppercase": "At least 1 uppercase letter required",
-        "passwordLowercase": "At least 1 lowercase letter required",
-        "passwordNumber": "At least 1 number required",
-        "passwordSymbol": "At least 1 symbol required (!@#$%^&* etc.)",
+        "passwordRequirements": "Password requirements:",
+        "passwordMin": "At least 8 characters",
+        "passwordUppercase": "Uppercase letter (A-Z)",
+        "passwordLowercase": "Lowercase letter (a-z)",
+        "passwordNumber": "Number (0-9)",
+        "passwordSymbol": "Special character (!@#$%^&*)",
+        "passwordStrong": "Password is strong",
         "passwordMismatch": "Passwords don't match",
         "confirmPasswordRequired": "Please confirm your password"
     },

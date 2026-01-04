@@ -1,19 +1,25 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
-import { Statuses } from "@/store/statuses/statuses";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 import { Header } from "@/components/ui/Header";
 
 export const AuthLayout = () => {
-  const { isAuthenticated, status } = useAppSelector((state) => state.auth);
+  const location = useLocation();
+  const { isAuthenticated, isInitialized } = useAppSelector(
+    (state) => state.auth
+  );
 
-  // Show loading while checking auth
-  if (status === Statuses.LOADING || status === Statuses.IDLE) {
+  // Show loading only during initial auth check
+  if (!isInitialized) {
     return <LoadingScreen />;
   }
 
-  // Redirect to dashboard if already authenticated
-  if (isAuthenticated) {
+  // Allow these pages even when authenticated
+  const isResetPasswordPage = location.pathname === "/auth/reset-password";
+  const isCallbackPage = location.pathname === "/auth/callback";
+
+  // Redirect to dashboard if already authenticated (except special pages)
+  if (isAuthenticated && !isResetPasswordPage && !isCallbackPage) {
     return <Navigate to="/dashboard" replace />;
   }
 
