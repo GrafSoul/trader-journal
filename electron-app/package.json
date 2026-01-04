@@ -8,7 +8,7 @@
     "scripts": {
         "start": "electron .",
         "build": "npm run build:web && electron-builder",
-        "build:web": "cd .. && npm run build && cp -r dist electron-app/",
+        "build:web": "cd .. && npm run build && cp -r dist ../electron-app/",
         "build:win": "npm run build:web && electron-builder --win",
         "build:mac": "npm run build:web && electron-builder --mac",
         "build:all": "npm run build:web && electron-builder --win --mac"
