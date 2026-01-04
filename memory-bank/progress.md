@@ -1,6 +1,8 @@
 # Progress Tracker
 
 ## Completed
+[2026-01-04 08:56:00] - Настроен i18next (RU/EN) с переключателем языка
+[2026-01-04 08:55:00] - Настроен HeroUI + TailwindCSS v4
 [2026-01-04 08:39:00] - Инициализирован Vite + React 19 + TypeScript проект
 [2026-01-01 12:14:00] - Создана полная спецификация Supabase Auth (AUTH_SPECIFICATION.md)
 [2026-01-01 12:14:00] - Обновлены все auth endpoints в RTK_QUERY_API.md
@@ -15,8 +17,8 @@
 - [x] Уточнить открытые вопросы с пользователем
 - [x] Обновить документацию с HeroUI и i18n
 - [x] Инициализировать проект (Vite + React + TS)
-- [ ] Настроить HeroUI + TailwindCSS v4
-- [ ] Настроить i18next (RU/EN)
+- [x] Настроить HeroUI + TailwindCSS v4
+- [x] Настроить i18next (RU/EN)
 - [ ] Настроить Supabase проект
 - [ ] Создать схему БД
 
