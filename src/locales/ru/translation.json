@@ -15,10 +15,13 @@
         "next": "Далее",
         "yes": "Да",
         "no": "Нет",
-        "or": "или"
+        "or": "или",
+        "notFound": "Страница не найдена",
+        "goHome": "На главную",
+        "comingSoon": "Скоро..."
     },
     "auth": {
-        "login": "Войти",
+        "login": "Вход",
         "logout": "Выйти",
         "register": "Регистрация",
         "email": "Email",
@@ -34,7 +37,15 @@
         "checkEmail": "Проверьте email",
         "checkEmailDescription": "Мы отправили ссылку для подтверждения на ваш email",
         "resendEmail": "Отправить повторно",
-        "emailSent": "Email отправлен"
+        "emailSent": "Email отправлен",
+        "loginDescription": "Войдите в свой аккаунт",
+        "registerDescription": "Создайте новый аккаунт",
+        "forgotPasswordDescription": "Введите email для сброса пароля",
+        "forgotPasswordHint": "Введите email, на который зарегистрирован аккаунт. Мы отправим ссылку для сброса пароля.",
+        "backToLogin": "Вернуться к входу",
+        "resetPasswordDescription": "Установите новый пароль",
+        "passwordUpdated": "Пароль обновлён!",
+        "redirecting": "Перенаправляем..."
     },
     "validation": {
         "required": "Обязательное поле",
@@ -45,6 +56,7 @@
         "passwordUppercase": "Нужна хотя бы 1 заглавная буква",
         "passwordLowercase": "Нужна хотя бы 1 строчная буква",
         "passwordNumber": "Нужна хотя бы 1 цифра",
+        "passwordSymbol": "Нужен хотя бы 1 символ (!@#$%^&* и т.д.)",
         "passwordMismatch": "Пароли не совпадают",
         "confirmPasswordRequired": "Подтвердите пароль"
     },

@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+html.dark {
+    color-scheme: dark;
+}
+
+html.light {
+    color-scheme: light;
+}
+
 body {
     @apply min-h-screen bg-background text-foreground antialiased;
 }

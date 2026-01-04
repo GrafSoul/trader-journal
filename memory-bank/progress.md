@@ -1,6 +1,8 @@
 # Progress Tracker
 
 ## Completed
+[2026-01-04 09:13:00] - Создана SQL миграция для схемы БД
+[2026-01-04 09:08:00] - Настроен Supabase клиент и типы БД
 [2026-01-04 08:56:00] - Настроен i18next (RU/EN) с переключателем языка
 [2026-01-04 08:55:00] - Настроен HeroUI + TailwindCSS v4
 [2026-01-04 08:39:00] - Инициализирован Vite + React 19 + TypeScript проект
@@ -19,8 +21,8 @@
 - [x] Инициализировать проект (Vite + React + TS)
 - [x] Настроить HeroUI + TailwindCSS v4
 - [x] Настроить i18next (RU/EN)
-- [ ] Настроить Supabase проект
-- [ ] Создать схему БД
+- [x] Настроить Supabase проект
+- [x] Создать схему БД
 
 ## Next Up
 - Базовые layout components
@@ -32,9 +34,10 @@
 ## MVP Milestones
 | Milestone | Status | Target |
 |-----------|--------|--------|
-| Project Setup | 🟡 In Progress | - |
-| HeroUI + TailwindCSS | ⚪ Not Started | - |
-| i18n (RU/EN) | ⚪ Not Started | - |
+| Project Setup | ✅ Done | 2026-01-04 |
+| HeroUI + TailwindCSS | ✅ Done | 2026-01-04 |
+| i18n (RU/EN) | ✅ Done | 2026-01-04 |
+| Supabase + DB Schema | ✅ Done | 2026-01-04 |
 | Auth System | ⚪ Not Started | - |
 | Trade CRUD | ⚪ Not Started | - |
 | MetaTrader Import | ⚪ Not Started | - |

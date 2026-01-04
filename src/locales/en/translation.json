@@ -15,7 +15,10 @@
         "next": "Next",
         "yes": "Yes",
         "no": "No",
-        "or": "or"
+        "or": "or",
+        "notFound": "Page not found",
+        "goHome": "Go home",
+        "comingSoon": "Coming soon..."
     },
     "auth": {
         "login": "Login",
@@ -34,7 +37,15 @@
         "checkEmail": "Check your email",
         "checkEmailDescription": "We sent a confirmation link to your email",
         "resendEmail": "Resend email",
-        "emailSent": "Email sent"
+        "emailSent": "Email sent",
+        "loginDescription": "Sign in to your account",
+        "registerDescription": "Create a new account",
+        "forgotPasswordDescription": "Enter your email to reset password",
+        "forgotPasswordHint": "Enter the email associated with your account. We will send a password reset link.",
+        "backToLogin": "Back to login",
+        "resetPasswordDescription": "Set a new password",
+        "passwordUpdated": "Password updated!",
+        "redirecting": "Redirecting..."
     },
     "validation": {
         "required": "Required field",
@@ -45,6 +56,7 @@
         "passwordUppercase": "At least 1 uppercase letter required",
         "passwordLowercase": "At least 1 lowercase letter required",
         "passwordNumber": "At least 1 number required",
+        "passwordSymbol": "At least 1 symbol required (!@#$%^&* etc.)",
         "passwordMismatch": "Passwords don't match",
         "confirmPasswordRequired": "Please confirm your password"
     },
