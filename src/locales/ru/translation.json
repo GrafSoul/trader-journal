@@ -18,7 +18,8 @@
         "or": "или",
         "notFound": "Страница не найдена",
         "goHome": "На главную",
-        "comingSoon": "Скоро..."
+        "comingSoon": "Скоро...",
+        "viewAll": "Смотреть все"
     },
     "auth": {
         "login": "Вход",
@@ -73,7 +74,7 @@
         "rateLimitExceeded": "Слишком много попыток"
     },
     "nav": {
-        "dashboard": "Дашборд",
+        "dashboard": "Главная",
         "trades": "Сделки",
         "analytics": "Аналитика",
         "settings": "Настройки",
@@ -83,23 +84,86 @@
         "title": "Сделки",
         "newTrade": "Новая сделка",
         "editTrade": "Редактировать сделку",
-        "symbol": "Инструмент",
-        "direction": "Направление",
-        "buy": "Покупка",
-        "sell": "Продажа",
-        "entryPrice": "Цена входа",
-        "exitPrice": "Цена выхода",
-        "entryDate": "Дата входа",
-        "exitDate": "Дата выхода",
-        "volume": "Объём",
-        "profit": "Прибыль",
-        "loss": "Убыток",
-        "pnl": "P&L",
-        "commission": "Комиссия",
-        "swap": "Своп",
-        "tags": "Теги",
-        "notes": "Заметки",
-        "noTrades": "Нет сделок"
+        "create": "Добавить сделку",
+        "createFirst": "Создайте первую сделку",
+        "empty": "Пока нет сделок",
+        "notFound": "Сделка не найдена",
+        "backToList": "Назад к сделкам",
+        "details": "Детали сделки",
+        "results": "Результаты",
+        "analysis": "Анализ",
+        "deleteConfirm": "Удалить сделку?",
+        "deleteWarning": "Это действие нельзя отменить. Сделка будет удалена безвозвратно.",
+        "side": {
+            "long": "Long",
+            "short": "Short"
+        },
+        "status": {
+            "planned": "Запланирована",
+            "opened": "Открыта",
+            "closed": "Закрыта",
+            "canceled": "Отменена"
+        },
+        "market": {
+            "forex": "Форекс",
+            "crypto": "Крипто",
+            "stocks": "Акции",
+            "futures": "Фьючерсы",
+            "options": "Опционы",
+            "other": "Другое"
+        },
+        "volumeType": {
+            "lots": "лотов",
+            "units": "единиц",
+            "contracts": "контрактов"
+        },
+        "fields": {
+            "market": "Рынок",
+            "symbol": "Инструмент",
+            "side": "Направление",
+            "status": "Статус",
+            "openTime": "Время открытия",
+            "closeTime": "Время закрытия",
+            "entry": "Цена входа",
+            "stopLoss": "Stop Loss",
+            "takeProfit": "Take Profit",
+            "exitPrice": "Цена выхода",
+            "volume": "Объём",
+            "volumeType": "Тип объёма",
+            "commission": "Комиссия",
+            "swap": "Своп",
+            "riskPercent": "Риск %",
+            "riskAmount": "Риск $",
+            "pnl": "P&L",
+            "pnlPercent": "P&L %",
+            "rMultiple": "R-Multiple",
+            "strategy": "Стратегия",
+            "setup": "Сетап",
+            "entryReason": "Причина входа",
+            "exitReason": "Причина выхода",
+            "notes": "Заметки",
+            "emotions": "Эмоции",
+            "dateTimePlaceholder": "Выберите дату и время",
+            "volumeLots": "Объём (лоты)",
+            "volumeUnits": "Количество",
+            "shares": "Акции",
+            "contracts": "Контракты",
+            "fee": "Комиссия биржи",
+            "leverage": "Плечо",
+            "margin": "Маржа",
+            "fundingRate": "Ставка финансирования",
+            "dividend": "Дивиденды",
+            "optionType": "Тип опциона",
+            "strikePrice": "Страйк",
+            "premium": "Премия",
+            "expirationDate": "Дата экспирации",
+            "pipValue": "Стоимость пипса",
+            "symbolPlaceholder": "Поиск или введите символ"
+        },
+        "optionType": {
+            "call": "Call",
+            "put": "Put"
+        }
     },
     "settings": {
         "title": "Настройки",
@@ -114,14 +178,16 @@
         "currentPassword": "Текущий пароль"
     },
     "dashboard": {
-        "title": "Дашборд",
+        "title": "Главная",
         "totalTrades": "Всего сделок",
         "winRate": "Win Rate",
         "totalPnl": "Общий P&L",
         "avgWin": "Средний выигрыш",
         "avgLoss": "Средний убыток",
         "profitFactor": "Profit Factor",
-        "recentTrades": "Последние сделки"
+        "recentTrades": "Последние сделки",
+        "bestTrade": "Лучшая сделка",
+        "worstTrade": "Худшая сделка"
     },
     "import": {
         "title": "Импорт сделок",

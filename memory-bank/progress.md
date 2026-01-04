@@ -1,6 +1,9 @@
 # Progress Tracker
 
 ## Completed
+[2026-01-04 12:55:00] - Dashboard со статистикой готов (P&L, Win Rate, Profit Factor, Best/Worst Trade, Recent Trades)
+[2026-01-04 12:45:00] - Trade CRUD полностью готов (Create, Read, Update, Delete сделок, страницы, формы, переводы)
+[2026-01-04 12:35:00] - Auth System полностью готов (Login, Register, Forgot/Reset Password, Protected Routes, Callbacks)
 [2026-01-04 09:13:00] - Создана SQL миграция для схемы БД
 [2026-01-04 09:08:00] - Настроен Supabase клиент и типы БД
 [2026-01-04 08:56:00] - Настроен i18next (RU/EN) с переключателем языка
@@ -25,11 +28,9 @@
 - [x] Создать схему БД
 
 ## Next Up
-- Базовые layout components
-- Auth flow (Supabase Auth)
-- Protected routes
-- Trade CRUD
+- Trade CRUD (создание, редактирование, удаление сделок)
 - MetaTrader Import (CSV parser)
+- Dashboard (базовая статистика)
 
 ## MVP Milestones
 | Milestone | Status | Target |
@@ -38,10 +39,10 @@
 | HeroUI + TailwindCSS | ✅ Done | 2026-01-04 |
 | i18n (RU/EN) | ✅ Done | 2026-01-04 |
 | Supabase + DB Schema | ✅ Done | 2026-01-04 |
-| Auth System | ⚪ Not Started | - |
-| Trade CRUD | ⚪ Not Started | - |
+| Auth System | ✅ Done | 2026-01-04 |
+| Trade CRUD | ✅ Done | 2026-01-04 |
 | MetaTrader Import | ⚪ Not Started | - |
-| Dashboard (basic) | ⚪ Not Started | - |
+| Dashboard (basic) | ✅ Done | 2026-01-04 |
 | Filters & Search | ⚪ Not Started | - |
 | Electron Build | ⚪ Not Started | - |
 
@@ -57,4 +58,4 @@
 - Нет известных проблем на данный момент
 
 ---
-*Last updated: 2026-01-01*
+*Last updated: 2026-01-04*
