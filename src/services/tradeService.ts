@@ -81,7 +81,7 @@ export const createTrade = createAsyncThunk<Trade, CreateTradeDto>(
   async (tradeData, { rejectWithValue }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         throw new Error("User not authenticated");
       }
@@ -162,6 +162,35 @@ export const deleteTrade = createAsyncThunk<string, string>(
   }
 );
 
+// ==================== DELETE ALL TRADES ====================
+export const deleteAllTrades = createAsyncThunk<void, void>(
+  types.TRADES_DELETE_ALL,
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const { error } = await supabase
+        .from("trades")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.warn("❌ Error deleting all trades:", error);
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      console.warn("❌ deleteAllTrades failed:", error);
+      return rejectWithValue(
+        error instanceof Error ? error.message : "Unknown error"
+      );
+    }
+  }
+);
+
 // ==================== BULK IMPORT TRADES ====================
 export interface ImportResult {
   imported: Trade[];
@@ -173,24 +202,47 @@ export const bulkImportTrades = createAsyncThunk<ImportResult, CreateTradeDto[]>
   async (tradesData, { rejectWithValue }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         throw new Error("User not authenticated");
       }
 
-      // Fetch existing trades to check for duplicates
-      const { data: existingTrades, error: fetchError } = await supabase
+      // Fetch existing trades for deduplication
+      interface ExistingTradeRow {
+        external_id: string | null;
+        symbol: string;
+        open_time: string;
+        close_time: string | null;
+        volume: number;
+      }
+
+      const { data: rawExisting, error: fetchError } = await supabase
         .from("trades")
-        .select("symbol, open_time, close_time, volume")
+        .select("external_id, symbol, open_time, close_time, volume")
         .eq("user_id", user.id);
 
       if (fetchError) {
         throw new Error(fetchError.message);
       }
 
-      // Filter out duplicates
+      const existingTrades = (rawExisting ?? []) as unknown as ExistingTradeRow[];
+
+      // Build set of existing external_ids for fast lookup
+      const existingExternalIds = new Set<string>();
+      for (const t of existingTrades) {
+        if (t.external_id) {
+          existingExternalIds.add(t.external_id);
+        }
+      }
+
+      // Filter out duplicates - prefer external_id, fallback to field comparison
       const uniqueTrades = tradesData.filter(newTrade => {
-        return !existingTrades?.some(existing => 
+        // Primary: check by external_id (Position ID)
+        if (newTrade.external_id) {
+          return !existingExternalIds.has(newTrade.external_id);
+        }
+        // Fallback: check by field comparison
+        return !existingTrades.some(existing =>
           isDuplicate(newTrade, existing)
         );
       });
@@ -201,22 +253,32 @@ export const bulkImportTrades = createAsyncThunk<ImportResult, CreateTradeDto[]>
         return { imported: [], skipped: skippedCount };
       }
 
-      const tradesWithUserId = uniqueTrades.map(trade => ({
-        ...trade,
-        user_id: user.id,
-      }));
+      // Insert in batches of 500 to avoid Supabase limits
+      const BATCH_SIZE = 500;
+      const allImported: Trade[] = [];
 
-      const { data, error } = await supabase
-        .from("trades")
-        .insert(tradesWithUserId as never[])
-        .select();
+      for (let i = 0; i < uniqueTrades.length; i += BATCH_SIZE) {
+        const batch = uniqueTrades.slice(i, i + BATCH_SIZE).map(trade => ({
+          ...trade,
+          user_id: user.id,
+        }));
 
-      if (error) {
-        console.warn("❌ Error importing trades:", error);
-        throw new Error(error.message);
+        const { data, error } = await supabase
+          .from("trades")
+          .insert(batch as never[])
+          .select();
+
+        if (error) {
+          console.warn("❌ Error importing batch:", error);
+          throw new Error(error.message);
+        }
+
+        if (data) {
+          allImported.push(...(data as Trade[]));
+        }
       }
 
-      return { imported: data as Trade[], skipped: skippedCount };
+      return { imported: allImported, skipped: skippedCount };
     } catch (error) {
       console.warn("❌ bulkImportTrades failed:", error);
       return rejectWithValue(

@@ -117,6 +117,9 @@ export interface CreateTradeDto {
   strike_price?: number | null;
   premium?: number | null;
   pip_value?: number | null;
+  // Import
+  external_id?: string | null;
+  import_source?: string | null;
 }
 
 export interface UpdateTradeDto extends Partial<CreateTradeDto> {

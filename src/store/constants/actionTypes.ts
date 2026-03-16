@@ -20,6 +20,7 @@ export const TRADES_CREATE = 'trades/create';
 export const TRADES_UPDATE = 'trades/update';
 export const TRADES_DELETE = 'trades/delete';
 export const TRADES_BULK_IMPORT = 'trades/bulkImport';
+export const TRADES_DELETE_ALL = 'trades/deleteAll';
 
 // ==================== STATS ACTIONS ====================
 export const STATS_FETCH_DASHBOARD = 'stats/fetchDashboard';

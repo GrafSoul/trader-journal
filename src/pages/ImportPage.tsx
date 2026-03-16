@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Card,
@@ -8,10 +8,16 @@ import {
   Divider,
   Chip,
   addToast,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from "@heroui/react";
-import { Upload, FileText, AlertCircle, CheckCircle2 } from "lucide-react";
-import { useAppDispatch } from "@/store/hooks";
-import { bulkImportTrades } from "@/services/tradeService";
+import { Upload, FileText, AlertCircle, CheckCircle2, Trash2, Database, TrendingUp, TrendingDown } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { bulkImportTrades, deleteAllTrades, fetchTrades } from "@/services/tradeService";
 import type { MarketType } from "@/types/trade";
 import {
   parseMetaTraderHTML,
@@ -23,12 +29,20 @@ import {
 const ImportPage = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { trades } = useAppSelector((state) => state.trades);
 
   const [isDragging, setIsDragging] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [parsedTrades, setParsedTrades] = useState<ParsedTrade[]>([]);
   const [fileName, setFileName] = useState<string | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
+  const [lastAction, setLastAction] = useState<{ type: "import" | "delete"; imported?: number; skipped?: number } | null>(null);
+
+  useEffect(() => {
+    dispatch(fetchTrades(undefined));
+  }, [dispatch]);
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -38,15 +52,15 @@ const ImportPage = () => {
 
       try {
         let trades: ParsedTrade[] = [];
-        const fileName = file.name.toLowerCase();
+        const name = file.name.toLowerCase();
 
-        if (fileName.endsWith(".html") || fileName.endsWith(".htm")) {
+        if (name.endsWith(".html") || name.endsWith(".htm")) {
           const text = await file.text();
           trades = parseMetaTraderHTML(text);
-        } else if (fileName.endsWith(".csv") || fileName.endsWith(".txt")) {
+        } else if (name.endsWith(".csv") || name.endsWith(".txt")) {
           const text = await file.text();
           trades = parseMetaTraderCSV(text);
-        } else if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+        } else if (name.endsWith(".xls") || name.endsWith(".xlsx")) {
           const buffer = await file.arrayBuffer();
           trades = parseMetaTraderExcel(buffer);
         } else {
@@ -101,6 +115,12 @@ const ImportPage = () => {
     [handleFile]
   );
 
+  const detectMarket = (symbol: string): MarketType => {
+    const s = symbol.toUpperCase();
+    if (s.includes("USDT") || s.includes("BTC") || s.includes("ETH")) return "crypto";
+    return "forex";
+  };
+
   const handleImport = async () => {
     if (parsedTrades.length === 0) return;
 
@@ -108,20 +128,25 @@ const ImportPage = () => {
     try {
       const tradesToImport = parsedTrades.map((trade) => ({
         symbol: trade.symbol,
-        market: "forex" as MarketType,
+        market: detectMarket(trade.symbol),
         side: trade.side,
         status: trade.status,
         open_time: trade.open_time,
         close_time: trade.close_time,
-        entry_price: trade.entry_price,
+        entry: trade.entry_price,
         exit_price: trade.exit_price,
         volume: trade.volume,
         pnl: trade.pnl,
         commission: trade.commission,
+        swap: trade.swap,
         notes: trade.notes,
+        external_id: trade.external_id,
+        import_source: "metatrader",
       }));
 
       const result = await dispatch(bulkImportTrades(tradesToImport)).unwrap();
+
+      setLastAction({ type: "import", imported: result.imported.length, skipped: result.skipped });
 
       addToast({
         title: t("import.success", {
@@ -133,6 +158,7 @@ const ImportPage = () => {
 
       setParsedTrades([]);
       setFileName(null);
+      dispatch(fetchTrades(undefined));
     } catch {
       addToast({
         title: t("import.error"),
@@ -143,15 +169,121 @@ const ImportPage = () => {
     }
   };
 
+  const handleDeleteAll = async (onClose: () => void) => {
+    setIsDeleting(true);
+    try {
+      await dispatch(deleteAllTrades()).unwrap();
+      setLastAction({ type: "delete" });
+      addToast({
+        title: t("import.allDeleted"),
+        color: "success",
+      });
+      onClose();
+    } catch {
+      addToast({
+        title: t("import.deleteError"),
+        color: "danger",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleClear = () => {
     setParsedTrades([]);
     setFileName(null);
     setParseError(null);
   };
 
+  const totalPnl = trades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="mb-6 text-2xl font-bold">{t("import.title")}</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">{t("import.title")}</h1>
+        <Button
+          color="danger"
+          variant="flat"
+          startContent={<Trash2 size={18} />}
+          onPress={onOpen}
+          isDisabled={trades.length === 0}>
+          {t("import.deleteAll")}
+        </Button>
+      </div>
+
+      {/* Trade stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+        <Card shadow="sm">
+          <CardBody className="flex flex-row items-center gap-3 py-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Database size={20} className="text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-default-500">{t("import.totalInDb")}</p>
+              <p className="text-xl font-bold">{trades.length}</p>
+            </div>
+          </CardBody>
+        </Card>
+        <Card shadow="sm">
+          <CardBody className="flex flex-row items-center gap-3 py-3">
+            <div className={`p-2 rounded-lg ${totalPnl >= 0 ? "bg-success/10" : "bg-danger/10"}`}>
+              {totalPnl >= 0 ? (
+                <TrendingUp size={20} className="text-success" />
+              ) : (
+                <TrendingDown size={20} className="text-danger" />
+              )}
+            </div>
+            <div>
+              <p className="text-xs text-default-500">{t("dashboard.totalPnl")}</p>
+              <p className={`text-xl font-bold ${totalPnl >= 0 ? "text-success" : "text-danger"}`}>
+                {totalPnl >= 0 ? "+" : ""}{totalPnl.toFixed(2)}
+              </p>
+            </div>
+          </CardBody>
+        </Card>
+        <Card shadow="sm" className="col-span-2 sm:col-span-1">
+          <CardBody className="flex flex-row items-center gap-3 py-3">
+            <div className="p-2 rounded-lg bg-warning/10">
+              <CheckCircle2 size={20} className="text-warning" />
+            </div>
+            <div>
+              <p className="text-xs text-default-500">{t("dashboard.winRate")}</p>
+              <p className="text-xl font-bold">
+                {trades.length > 0
+                  ? `${((trades.filter((t) => (t.pnl || 0) > 0).length / trades.length) * 100).toFixed(1)}%`
+                  : "—"}
+              </p>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* Last action result */}
+      {lastAction && (
+        <div className={`flex items-center gap-2 p-3 mb-4 rounded-lg ${
+          lastAction.type === "delete"
+            ? "bg-danger-50 dark:bg-danger-900/20"
+            : "bg-success-50 dark:bg-success-900/20"
+        }`}>
+          <CheckCircle2 size={18} className={lastAction.type === "delete" ? "text-danger" : "text-success"} />
+          <span className={lastAction.type === "delete" ? "text-danger" : "text-success"}>
+            {lastAction.type === "delete"
+              ? t("import.allDeletedResult", { count: 0 })
+              : t("import.importResult", {
+                  imported: lastAction.imported || 0,
+                  skipped: lastAction.skipped || 0,
+                  total: trades.length,
+                })}
+          </span>
+          <Button
+            size="sm"
+            variant="light"
+            className="ml-auto min-w-0 px-2"
+            onPress={() => setLastAction(null)}>
+            ✕
+          </Button>
+        </div>
+      )}
 
       <Card>
         <CardHeader className="flex flex-col items-start gap-1">
@@ -214,34 +346,43 @@ const ImportPage = () => {
                 </Button>
               </div>
 
+              {/* Dedup info */}
+              <p className="text-sm text-default-500">
+                {t("import.dedupInfo")}
+              </p>
+
               {/* Preview Table */}
-              <div className="max-h-64 overflow-auto border border-divider rounded-lg">
+              <div className="max-h-80 overflow-auto border border-divider rounded-lg">
                 <table className="w-full text-sm">
-                  <thead className="bg-default-100 sticky top-0">
+                  <thead className="bg-default-100 dark:bg-default-50 sticky top-0 z-10">
                     <tr>
+                      <th className="px-3 py-2 text-left">ID</th>
                       <th className="px-3 py-2 text-left">
-                        {t("trades.symbol")}
+                        {t("trades.fields.symbol")}
                       </th>
                       <th className="px-3 py-2 text-left">
-                        {t("trades.side")}
+                        {t("trades.fields.side")}
                       </th>
                       <th className="px-3 py-2 text-left">
-                        {t("trades.volume")}
+                        {t("trades.fields.volume")}
                       </th>
                       <th className="px-3 py-2 text-left">
-                        {t("trades.openTime")}
+                        {t("trades.fields.openTime")}
                       </th>
                       <th className="px-3 py-2 text-left">
-                        {t("trades.entryPrice")}
+                        {t("trades.fields.entry")}
                       </th>
                       <th className="px-3 py-2 text-right">
-                        {t("trades.pnl")}
+                        {t("trades.fields.pnl")}
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {parsedTrades.slice(0, 10).map((trade, index) => (
+                    {parsedTrades.slice(0, 20).map((trade, index) => (
                       <tr key={index} className="border-t border-divider">
+                        <td className="px-3 py-2 text-default-400 text-xs font-mono">
+                          {trade.external_id || "—"}
+                        </td>
                         <td className="px-3 py-2 font-medium">
                           {trade.symbol}
                         </td>
@@ -250,7 +391,7 @@ const ImportPage = () => {
                             size="sm"
                             color={trade.side === "long" ? "success" : "danger"}
                             variant="flat">
-                            {trade.side.toUpperCase()}
+                            {trade.side === "long" ? "BUY" : "SELL"}
                           </Chip>
                         </td>
                         <td className="px-3 py-2">{trade.volume}</td>
@@ -271,9 +412,9 @@ const ImportPage = () => {
                     ))}
                   </tbody>
                 </table>
-                {parsedTrades.length > 10 && (
+                {parsedTrades.length > 20 && (
                   <div className="p-2 text-center text-default-500 text-sm bg-default-50">
-                    {t("import.andMore", { count: parsedTrades.length - 10 })}
+                    {t("import.andMore", { count: parsedTrades.length - 20 })}
                   </div>
                 )}
               </div>
@@ -295,6 +436,31 @@ const ImportPage = () => {
           )}
         </CardBody>
       </Card>
+
+      {/* Delete All Confirmation Modal */}
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>{t("import.deleteAllTitle")}</ModalHeader>
+              <ModalBody>
+                <p>{t("import.deleteAllConfirm")}</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" onPress={onClose}>
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  color="danger"
+                  onPress={() => handleDeleteAll(onClose)}
+                  isLoading={isDeleting}>
+                  {t("import.deleteAll")}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

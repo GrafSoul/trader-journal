@@ -7,6 +7,7 @@ import {
   createTrade,
   updateTrade,
   deleteTrade,
+  deleteAllTrades,
   bulkImportTrades,
   type ImportResult,
 } from "@/services/tradeService";
@@ -123,6 +124,22 @@ const tradeSlice = createSlice({
         }
       })
       .addCase(deleteTrade.rejected, (state, action) => {
+        state.status = Statuses.FAILED;
+        state.error = action.payload as string;
+      });
+
+    // ==================== DELETE ALL TRADES ====================
+    builder
+      .addCase(deleteAllTrades.pending, (state) => {
+        state.status = Statuses.LOADING;
+        state.error = null;
+      })
+      .addCase(deleteAllTrades.fulfilled, (state) => {
+        state.status = Statuses.SUCCEEDED;
+        state.trades = [];
+        state.selectedTrade = null;
+      })
+      .addCase(deleteAllTrades.rejected, (state, action) => {
         state.status = Statuses.FAILED;
         state.error = action.payload as string;
       });

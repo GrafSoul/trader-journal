@@ -236,6 +236,15 @@
         "andMore": "... and {{count}} more",
         "unsupportedFormat": "Unsupported file format",
         "noTradesFound": "No trades found in the file",
-        "parseError": "Error parsing file"
+        "parseError": "Error parsing file",
+        "deleteAll": "Delete all trades",
+        "deleteAllTitle": "Delete all trades?",
+        "deleteAllConfirm": "This will permanently delete ALL your trades. Are you sure?",
+        "allDeleted": "All trades deleted",
+        "deleteError": "Error deleting trades",
+        "dedupInfo": "Duplicates will be automatically skipped during import (by Position ID)",
+        "totalInDb": "Trades in database",
+        "importResult": "Imported {{imported}}, skipped {{skipped}} dupl. Total in DB: {{total}}",
+        "allDeletedResult": "All trades deleted from database"
     }
 }

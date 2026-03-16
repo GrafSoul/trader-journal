@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, NavLink, useLocation } from "react-router-dom";
 import { Button } from "@heroui/react";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,8 @@ import {
   Upload,
   Settings,
   CandlestickChart,
+  Menu,
+  X,
 } from "lucide-react";
 
 export const MainLayout = () => {
@@ -23,10 +25,16 @@ export const MainLayout = () => {
   const { profile } = useAppSelector((state) => state.profile);
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProfile());
   }, [dispatch]);
+
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   const currentLang = i18n.language?.startsWith("ru") ? "ru" : "en";
 
@@ -46,78 +54,126 @@ export const MainLayout = () => {
     { to: "/settings", icon: Settings, label: t("nav.settings") },
   ];
 
-  return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="hidden w-64 border-r border-divider bg-content1 lg:flex lg:flex-col">
-        <div className="flex h-[65px] items-center gap-2 px-4 border-b border-divider">
+  const sidebarContent = (
+    <>
+      <div className="flex h-[65px] items-center justify-between gap-2 px-4 border-b border-divider">
+        <div className="flex items-center gap-2">
           <CandlestickChart size={28} className="text-success" />
           <h2 className="text-xl font-bold">{t("common.appName")}</h2>
         </div>
+        {/* Close button - mobile only */}
+        <Button
+          variant="light"
+          size="sm"
+          isIconOnly
+          className="lg:hidden"
+          onPress={() => setSidebarOpen(false)}
+          aria-label="Close menu">
+          <X size={20} />
+        </Button>
+      </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4">
-          <ul className="flex flex-col gap-1">
-            {navItems.map((item) => {
-              const isActive =
-                location.pathname === item.to ||
-                (item.to !== "/dashboard" &&
-                  location.pathname.startsWith(item.to));
-              return (
-                <li key={item.to}>
-                  <NavLink
-                    to={item.to}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "hover:bg-default-100"
-                    }`}>
-                    <item.icon size={20} />
-                    <span>{item.label}</span>
-                  </NavLink>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+      {/* Navigation */}
+      <nav className="flex-1 p-4">
+        <ul className="flex flex-col gap-1">
+          {navItems.map((item) => {
+            const isActive =
+              location.pathname === item.to ||
+              (item.to !== "/dashboard" &&
+                location.pathname.startsWith(item.to));
+            return (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-default-100"
+                  }`}>
+                  <item.icon size={20} />
+                  <span>{item.label}</span>
+                </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
 
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t border-divider">
-          <Button
-            variant="flat"
-            className="w-full justify-start"
-            onPress={handleLogout}
-            startContent={<LogOut size={18} />}>
-            {t("auth.logout")}
-          </Button>
-        </div>
+      {/* Sidebar Footer */}
+      <div className="p-4 border-t border-divider">
+        <Button
+          variant="flat"
+          className="w-full justify-start"
+          onPress={handleLogout}
+          startContent={<LogOut size={18} />}>
+          {t("auth.logout")}
+        </Button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="flex min-h-screen">
+      {/* Desktop Sidebar */}
+      <aside className="hidden w-64 border-r border-divider bg-content1 lg:flex lg:flex-col">
+        {sidebarContent}
       </aside>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}>
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/50" />
+          {/* Sidebar Panel */}
+          <aside
+            className="relative z-10 flex h-full w-72 flex-col bg-content1 shadow-xl"
+            onClick={(e) => e.stopPropagation()}>
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
 
       {/* Main content */}
       <main className="flex-1">
         {/* Header */}
         <header className="sticky top-0 z-40 border-b border-divider bg-background/80 backdrop-blur-md">
-          <div className="flex h-16 items-center justify-end gap-4 px-4">
-            {profile?.display_name && (
-              <span className="text-default-600">
-                {t("dashboard.greeting", { name: profile.display_name })}
-              </span>
-            )}
+          <div className="flex h-16 items-center justify-between gap-4 px-4">
+            {/* Left: hamburger menu (mobile) */}
             <Button
-              variant="flat"
-              size="sm"
-              onPress={toggleLanguage}
-              className="min-w-[70px] font-medium">
-              {currentLang === "ru" ? "EN" : "RU"}
-            </Button>
-            <Button
-              variant="flat"
+              variant="light"
               size="sm"
               isIconOnly
-              onPress={toggleTheme}
-              aria-label="Toggle theme">
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              className="lg:hidden"
+              onPress={() => setSidebarOpen(true)}
+              aria-label="Open menu">
+              <Menu size={22} />
             </Button>
+
+            {/* Right: controls */}
+            <div className="flex items-center gap-4 ml-auto">
+              {profile?.display_name && (
+                <span className="text-default-600 hidden sm:inline">
+                  {t("dashboard.greeting", { name: profile.display_name })}
+                </span>
+              )}
+              <Button
+                variant="flat"
+                size="sm"
+                onPress={toggleLanguage}
+                className="min-w-[70px] font-medium">
+                {currentLang === "ru" ? "EN" : "RU"}
+              </Button>
+              <Button
+                variant="flat"
+                size="sm"
+                isIconOnly
+                onPress={toggleTheme}
+                aria-label="Toggle theme">
+                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              </Button>
+            </div>
           </div>
         </header>
 
