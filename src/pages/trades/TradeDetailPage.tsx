@@ -30,6 +30,7 @@ import {
   resetTradeStatus,
 } from "@/store/slices/tradeSlice";
 import { Statuses } from "@/store/statuses/statuses";
+import TradingViewChart from "@/components/trades/TradingViewChart";
 
 const TradeDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -153,6 +154,18 @@ const TradeDetailPage = () => {
           {error}
         </div>
       )}
+
+      {/* TradingView Chart */}
+      <Card className="mb-6">
+        <CardBody className="p-0 overflow-hidden">
+          <TradingViewChart
+            symbol={trade.symbol}
+            market={trade.market}
+            openTime={trade.open_time}
+            closeTime={trade.close_time}
+          />
+        </CardBody>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Info */}
