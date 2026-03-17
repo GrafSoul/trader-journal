@@ -30,6 +30,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchTrades } from "@/services/tradeService";
 import { Statuses } from "@/store/statuses/statuses";
 import type { Trade, PnlFilter } from "@/types/trade";
+import { TradeCard } from "@/components/trades/TradeCard";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 30, 50, 100];
 const DEBOUNCE_MS = 400;
@@ -427,10 +428,11 @@ const TradesPage = () => {
         </div>
       )}
 
-      {/* Table */}
+      {/* Table (desktop) + Cards (mobile) */}
       {!isLoading && filteredTrades.length > 0 && (
         <>
-          <div className="overflow-x-auto rounded-lg border border-default-200">
+          {/* Desktop: table */}
+          <div className="hidden sm:block overflow-x-auto rounded-lg border border-default-200">
             <table className="w-full text-sm">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
@@ -472,8 +474,15 @@ const TradesPage = () => {
             </table>
           </div>
 
+          {/* Mobile: cards */}
+          <div className="flex flex-col gap-3 sm:hidden">
+            {table.getRowModel().rows.map((row) => (
+              <TradeCard key={row.id} trade={row.original} />
+            ))}
+          </div>
+
           {/* Pagination */}
-          <div className="flex items-center justify-center gap-4 mt-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-4">
             {table.getPageCount() > 1 && (
               <Pagination
                 total={table.getPageCount()}

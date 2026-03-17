@@ -186,7 +186,7 @@ function parseCSVRow(values: string[], columnMap: ColumnMap): ParsedTrade | null
     // closeTime and closePrice may use same column index as openTime/openPrice
     // In MT5 format, closeTime is the second "Время" column (index 8), closePrice is second "Цена" (index 9)
     let closeTimeIdx = columnMap.closeTime;
-    let closePriceIdx = columnMap.closePrice;
+    const closePriceIdx = columnMap.closePrice;
     // If close columns not found, they might be at fixed positions after openPrice
     if (closeTimeIdx < 0 && columnMap.openTime >= 0) {
       // Try the second occurrence

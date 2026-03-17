@@ -117,24 +117,25 @@ const TradeDetailPage = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Button isIconOnly variant="flat" onPress={() => navigate("/trades")}>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+          <Button isIconOnly variant="flat" size="sm" onPress={() => navigate("/trades")}>
             <ArrowLeft size={18} />
           </Button>
-          <h1 className="text-2xl font-bold">{trade.symbol}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold truncate">{trade.symbol}</h1>
           {trade.side && (
-            <Chip color={sideColors[trade.side]} variant="flat">
+            <Chip color={sideColors[trade.side]} variant="flat" size="sm">
               {t(`trades.side.${trade.side}`)}
             </Chip>
           )}
-          <Chip color={statusColors[trade.status]} variant="flat">
+          <Chip color={statusColors[trade.status]} variant="flat" size="sm">
             {t(`trades.status.${trade.status}`)}
           </Chip>
         </div>
         <div className="flex gap-2">
           <Button
             variant="flat"
+            size="sm"
             startContent={<Edit size={16} />}
             onPress={() => navigate(`/trades/${id}/edit`)}>
             {t("common.edit")}
@@ -142,6 +143,7 @@ const TradeDetailPage = () => {
           <Button
             color="danger"
             variant="flat"
+            size="sm"
             startContent={<Trash2 size={16} />}
             onPress={onOpen}>
             {t("common.delete")}
@@ -157,10 +159,16 @@ const TradeDetailPage = () => {
 
       {/* TradingView Chart */}
       <Card className="mb-6">
-        <CardBody className="p-0 overflow-hidden">
+        <CardBody className="p-0">
           <TradingViewChart
             symbol={trade.symbol}
             market={trade.market}
+            side={trade.side}
+            entry={trade.entry}
+            exitPrice={trade.exit_price}
+            stopLoss={trade.stop_loss}
+            takeProfit={trade.take_profit}
+            pnl={trade.pnl}
             openTime={trade.open_time}
             closeTime={trade.close_time}
           />
@@ -175,7 +183,7 @@ const TradeDetailPage = () => {
           </CardHeader>
           <Divider />
           <CardBody>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm text-default-500">
                   {t("trades.fields.market")}
@@ -208,7 +216,7 @@ const TradeDetailPage = () => {
 
             <Divider className="my-4" />
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm text-default-500">
                   {t("trades.fields.entry")}
@@ -243,7 +251,7 @@ const TradeDetailPage = () => {
 
             <Divider className="my-4" />
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm text-default-500">
                   {t("trades.fields.commission")}

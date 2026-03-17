@@ -7,15 +7,27 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   Cell,
 } from "recharts";
 import { Card, CardBody, CardHeader } from "@heroui/react";
+import { ChartContainer } from "./ChartContainer";
 import type { Trade } from "@/types/trade";
 
 interface PnlDistributionChartProps {
   trades: Trade[];
 }
+
+const tooltipStyle = {
+  contentStyle: {
+    backgroundColor: "hsl(var(--heroui-content1))",
+    border: "1px solid hsl(var(--heroui-divider))",
+    borderRadius: "8px",
+    fontSize: "13px",
+    color: "hsl(var(--heroui-foreground))",
+  },
+  labelStyle: { color: "hsl(var(--heroui-default-600))" },
+  itemStyle: { color: "hsl(var(--heroui-foreground))" },
+};
 
 export const PnlDistributionChart = ({ trades }: PnlDistributionChartProps) => {
   const { t } = useTranslation();
@@ -66,9 +78,9 @@ export const PnlDistributionChart = ({ trades }: PnlDistributionChartProps) => {
         <h3 className="text-lg font-semibold">{t("dashboard.pnlDistribution")}</h3>
       </CardHeader>
       <CardBody className="pt-0">
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+        <ChartContainer>
+          {({ width, height }) => (
+            <BarChart width={width} height={height} data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--heroui-default-200))" />
               <XAxis
                 dataKey="label"
@@ -81,12 +93,8 @@ export const PnlDistributionChart = ({ trades }: PnlDistributionChartProps) => {
                 width={35}
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--heroui-content1))",
-                  border: "1px solid hsl(var(--heroui-divider))",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                }}
+                {...tooltipStyle}
+                cursor={{ fill: "hsl(var(--heroui-default-100))", fillOpacity: 0.3 }}
                 formatter={(value) => [String(value), t("dashboard.totalTrades")]}
                 labelFormatter={(label) => `P&L: ${label}`}
               />
@@ -100,8 +108,8 @@ export const PnlDistributionChart = ({ trades }: PnlDistributionChartProps) => {
                 ))}
               </Bar>
             </BarChart>
-          </ResponsiveContainer>
-        </div>
+          )}
+        </ChartContainer>
       </CardBody>
     </Card>
   );

@@ -136,7 +136,7 @@ export const MainLayout = () => {
       )}
 
       {/* Main content */}
-      <main className="flex-1">
+      <main className="flex-1 min-w-0 overflow-x-hidden">
         {/* Header */}
         <header className="sticky top-0 z-40 border-b border-divider bg-background/80 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between gap-4 px-4">

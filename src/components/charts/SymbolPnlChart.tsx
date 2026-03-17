@@ -7,15 +7,27 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   Cell,
 } from "recharts";
 import { Card, CardBody, CardHeader } from "@heroui/react";
+import { ChartContainer } from "./ChartContainer";
 import type { Trade } from "@/types/trade";
 
 interface SymbolPnlChartProps {
   trades: Trade[];
 }
+
+const tooltipStyle = {
+  contentStyle: {
+    backgroundColor: "hsl(var(--heroui-content1))",
+    border: "1px solid hsl(var(--heroui-divider))",
+    borderRadius: "8px",
+    fontSize: "13px",
+    color: "hsl(var(--heroui-foreground))",
+  },
+  labelStyle: { color: "hsl(var(--heroui-default-600))" },
+  itemStyle: { color: "hsl(var(--heroui-foreground))" },
+};
 
 export const SymbolPnlChart = ({ trades }: SymbolPnlChartProps) => {
   const { t } = useTranslation();
@@ -49,9 +61,11 @@ export const SymbolPnlChart = ({ trades }: SymbolPnlChartProps) => {
         <h3 className="text-lg font-semibold">{t("dashboard.symbolPnl")}</h3>
       </CardHeader>
       <CardBody className="pt-0">
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
+        <ChartContainer>
+          {({ width, height }) => (
             <BarChart
+              width={width}
+              height={height}
               data={data}
               layout="vertical"
               margin={{ top: 5, right: 10, left: 5, bottom: 0 }}
@@ -69,12 +83,8 @@ export const SymbolPnlChart = ({ trades }: SymbolPnlChartProps) => {
                 width={80}
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--heroui-content1))",
-                  border: "1px solid hsl(var(--heroui-divider))",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                }}
+                {...tooltipStyle}
+                cursor={{ fill: "hsl(var(--heroui-default-100))", fillOpacity: 0.3 }}
                 formatter={(value, _name, props) => {
                   const count = (props.payload as { count: number }).count;
                   return [`$${Number(value).toFixed(2)} (${count} ${t("dashboard.weekdayTrades")})`, "P&L"];
@@ -90,8 +100,8 @@ export const SymbolPnlChart = ({ trades }: SymbolPnlChartProps) => {
                 ))}
               </Bar>
             </BarChart>
-          </ResponsiveContainer>
-        </div>
+          )}
+        </ChartContainer>
       </CardBody>
     </Card>
   );

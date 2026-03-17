@@ -7,14 +7,26 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
 } from "recharts";
 import { Card, CardBody, CardHeader } from "@heroui/react";
+import { ChartContainer } from "./ChartContainer";
 import type { Trade } from "@/types/trade";
 
 interface EquityCurveProps {
   trades: Trade[];
 }
+
+const tooltipStyle = {
+  contentStyle: {
+    backgroundColor: "hsl(var(--heroui-content1))",
+    border: "1px solid hsl(var(--heroui-divider))",
+    borderRadius: "8px",
+    fontSize: "13px",
+    color: "hsl(var(--heroui-foreground))",
+  },
+  labelStyle: { color: "hsl(var(--heroui-default-600))" },
+  itemStyle: { color: "hsl(var(--heroui-foreground))" },
+};
 
 export const EquityCurve = ({ trades }: EquityCurveProps) => {
   const { t } = useTranslation();
@@ -44,9 +56,9 @@ export const EquityCurve = ({ trades }: EquityCurveProps) => {
         <h3 className="text-lg font-semibold">{t("dashboard.equityCurve")}</h3>
       </CardHeader>
       <CardBody className="pt-0">
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+        <ChartContainer>
+          {({ width, height }) => (
+            <AreaChart width={width} height={height} data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop
@@ -74,12 +86,8 @@ export const EquityCurve = ({ trades }: EquityCurveProps) => {
                 width={70}
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--heroui-content1))",
-                  border: "1px solid hsl(var(--heroui-divider))",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                }}
+                {...tooltipStyle}
+                cursor={{ stroke: "hsl(var(--heroui-default-400))", strokeWidth: 1 }}
                 formatter={(value) => [`$${Number(value).toFixed(2)}`, "P&L"]}
                 labelFormatter={(label) => String(label)}
               />
@@ -91,8 +99,8 @@ export const EquityCurve = ({ trades }: EquityCurveProps) => {
                 fill="url(#equityGradient)"
               />
             </AreaChart>
-          </ResponsiveContainer>
-        </div>
+          )}
+        </ChartContainer>
       </CardBody>
     </Card>
   );

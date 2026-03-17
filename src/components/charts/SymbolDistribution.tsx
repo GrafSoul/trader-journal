@@ -4,11 +4,11 @@ import {
   PieChart,
   Pie,
   Cell,
-  ResponsiveContainer,
   Tooltip,
   Legend,
 } from "recharts";
 import { Card, CardBody, CardHeader } from "@heroui/react";
+import { ChartContainer } from "./ChartContainer";
 import type { Trade } from "@/types/trade";
 
 interface SymbolDistributionProps {
@@ -19,6 +19,18 @@ const COLORS = [
   "#006FEE", "#17c964", "#f5a524", "#f31260", "#7828c8",
   "#0e8aaa", "#c4841d", "#338ef7", "#45d483", "#f871a0",
 ];
+
+const tooltipStyle = {
+  contentStyle: {
+    backgroundColor: "hsl(var(--heroui-content1))",
+    border: "1px solid hsl(var(--heroui-divider))",
+    borderRadius: "8px",
+    fontSize: "13px",
+    color: "hsl(var(--heroui-foreground))",
+  },
+  labelStyle: { color: "hsl(var(--heroui-default-600))" },
+  itemStyle: { color: "hsl(var(--heroui-foreground))" },
+};
 
 export const SymbolDistribution = ({ trades }: SymbolDistributionProps) => {
   const { t } = useTranslation();
@@ -44,9 +56,9 @@ export const SymbolDistribution = ({ trades }: SymbolDistributionProps) => {
         <h3 className="text-lg font-semibold">{t("dashboard.symbolDistribution")}</h3>
       </CardHeader>
       <CardBody className="pt-0">
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+        <ChartContainer>
+          {({ width, height }) => (
+            <PieChart width={width} height={height}>
               <Pie
                 data={data}
                 cx="50%"
@@ -65,20 +77,15 @@ export const SymbolDistribution = ({ trades }: SymbolDistributionProps) => {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--heroui-content1))",
-                  border: "1px solid hsl(var(--heroui-divider))",
-                  borderRadius: "8px",
-                  fontSize: "13px",
-                }}
+                {...tooltipStyle}
                 formatter={(value) => [String(value), t("dashboard.totalTrades")]}
               />
               <Legend
-                wrapperStyle={{ fontSize: "12px" }}
+                wrapperStyle={{ fontSize: "12px", color: "hsl(var(--heroui-foreground))" }}
               />
             </PieChart>
-          </ResponsiveContainer>
-        </div>
+          )}
+        </ChartContainer>
       </CardBody>
     </Card>
   );
