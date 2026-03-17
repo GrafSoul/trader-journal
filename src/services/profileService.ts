@@ -21,10 +21,29 @@ export const fetchProfile = createAsyncThunk<Profile, void>(
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         throw new Error(error.message);
+      }
+
+      // Auto-create profile if it doesn't exist (upsert to handle conflicts)
+      if (!data) {
+        const { data: upserted, error: upsertError } = await supabase
+          .from("profiles")
+          .upsert({ id: user.id } as never, { onConflict: "id" })
+          .select()
+          .maybeSingle();
+
+        if (upsertError) {
+          throw new Error(upsertError.message);
+        }
+
+        if (!upserted) {
+          throw new Error("Could not load or create profile. Check RLS policies on profiles table.");
+        }
+
+        return upserted;
       }
 
       return data;

@@ -170,6 +170,30 @@
         "optionType": {
             "call": "Call",
             "put": "Put"
+        },
+        "filter": {
+            "all": "Все",
+            "profitable": "Прибыльные",
+            "unprofitable": "Убыточные",
+            "weekday": "День недели",
+            "sortBy": "Сортировка",
+            "searchPlaceholder": "Поиск...",
+            "dateRange": "Период",
+            "day": "День",
+            "week": "Неделя",
+            "month": "Месяц",
+            "year": "Год",
+            "noResults": "Ничего не найдено",
+            "pageSize": "На странице",
+            "showing": "Показано {{shown}} из {{total}}",
+            "sort": {
+                "date_desc": "Дата (новые)",
+                "date_asc": "Дата (старые)",
+                "pnl_desc": "P&L (макс.)",
+                "pnl_asc": "P&L (мин.)",
+                "symbol_asc": "Инструмент (А-Я)",
+                "symbol_desc": "Инструмент (Я-А)"
+            }
         }
     },
     "settings": {

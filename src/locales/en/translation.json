@@ -170,6 +170,30 @@
         "optionType": {
             "call": "Call",
             "put": "Put"
+        },
+        "filter": {
+            "all": "All",
+            "profitable": "Profitable",
+            "unprofitable": "Unprofitable",
+            "weekday": "Weekday",
+            "sortBy": "Sort by",
+            "searchPlaceholder": "Search...",
+            "dateRange": "Date range",
+            "day": "Day",
+            "week": "Week",
+            "month": "Month",
+            "year": "Year",
+            "noResults": "No results found",
+            "pageSize": "Per page",
+            "showing": "Showing {{shown}} of {{total}}",
+            "sort": {
+                "date_desc": "Date (newest)",
+                "date_asc": "Date (oldest)",
+                "pnl_desc": "P&L (highest)",
+                "pnl_asc": "P&L (lowest)",
+                "symbol_asc": "Symbol (A-Z)",
+                "symbol_desc": "Symbol (Z-A)"
+            }
         }
     },
     "settings": {

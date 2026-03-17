@@ -127,6 +127,10 @@ export interface UpdateTradeDto extends Partial<CreateTradeDto> {
 }
 
 // ==================== FILTERS ====================
+export type PnlFilter = "all" | "profit" | "loss";
+export type SortField = "close_time" | "open_time" | "pnl" | "symbol";
+export type SortOrder = "asc" | "desc";
+
 export interface TradeFilters {
   market?: MarketType;
   symbol?: string;
@@ -134,6 +138,10 @@ export interface TradeFilters {
   status?: TradeStatus;
   startDate?: string;
   endDate?: string;
+  pnlFilter?: PnlFilter;
+  weekday?: number; // 0=Mon, 1=Tue, ..., 6=Sun
+  sortBy?: SortField;
+  sortOrder?: SortOrder;
 }
 
 // ==================== REDUX STATE ====================
