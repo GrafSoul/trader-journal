@@ -24,6 +24,16 @@ import { SymbolDistribution } from "@/components/charts/SymbolDistribution";
 import { WeekdayPnlChart } from "@/components/charts/WeekdayPnlChart";
 import { PnlDistributionChart } from "@/components/charts/PnlDistributionChart";
 import { SymbolPnlChart } from "@/components/charts/SymbolPnlChart";
+import { SessionPnlChart } from "@/components/charts/SessionPnlChart";
+import { MonthlyPnlChart } from "@/components/charts/MonthlyPnlChart";
+import { DrawdownChart } from "@/components/charts/DrawdownChart";
+import { CumulativeWinRateChart } from "@/components/charts/CumulativeWinRateChart";
+import { StreakChart } from "@/components/charts/StreakChart";
+import { RMultipleChart } from "@/components/charts/RMultipleChart";
+import { TradeDurationChart } from "@/components/charts/TradeDurationChart";
+import { HourlyPnlChart } from "@/components/charts/HourlyPnlChart";
+import { MarketPnlChart } from "@/components/charts/MarketPnlChart";
+import { MarketClocks } from "@/components/dashboard/MarketClocks";
 
 const DashboardPage = () => {
   const { t } = useTranslation();
@@ -230,15 +240,27 @@ const DashboardPage = () => {
             </Card>
           </div>
 
+          {/* Market Clocks */}
+          <MarketClocks />
+
           {/* Charts */}
           {trades.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
               <EquityCurve trades={trades} />
+              <DrawdownChart trades={trades} />
               <DailyPnlChart trades={trades} />
-              <SymbolDistribution trades={trades} />
+              <MonthlyPnlChart trades={trades} />
+              <CumulativeWinRateChart trades={trades} />
+              <StreakChart trades={trades} />
               <WeekdayPnlChart trades={trades} />
-              <PnlDistributionChart trades={trades} />
+              <HourlyPnlChart trades={trades} />
+              <SessionPnlChart trades={trades} />
+              <MarketPnlChart trades={trades} />
+              <SymbolDistribution trades={trades} />
               <SymbolPnlChart trades={trades} />
+              <PnlDistributionChart trades={trades} />
+              <RMultipleChart trades={trades} />
+              <TradeDurationChart trades={trades} />
             </div>
           )}
         </>

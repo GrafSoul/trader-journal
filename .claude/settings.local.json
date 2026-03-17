@@ -16,7 +16,8 @@
       "Bash(npm install @tanstack/react-table)",
       "Bash(npm run lint)",
       "Bash(npx tsc --version)",
-      "Bash(ls /Volumes/PROJECTS/PROJECTS/SAAS/trader-journal/electron-app/dist/assets/index-*)"
+      "Bash(ls /Volumes/PROJECTS/PROJECTS/SAAS/trader-journal/electron-app/dist/assets/index-*)",
+      "WebFetch(domain:www.notion.com)"
     ]
   }
 }

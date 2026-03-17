@@ -14,7 +14,7 @@ import {
   Chip,
 } from "@heroui/react";
 import type { RangeValue } from "@react-types/shared";
-import { today, getLocalTimeZone, startOfWeek, startOfMonth, startOfYear, type DateValue } from "@internationalized/date";
+import { today, getLocalTimeZone, startOfWeek, startOfMonth, startOfYear, parseDate, type DateValue } from "@internationalized/date";
 import { useLocale } from "@react-aria/i18n";
 import { Plus, X, Search, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import {
@@ -31,6 +31,7 @@ import { fetchTrades } from "@/services/tradeService";
 import { Statuses } from "@/store/statuses/statuses";
 import type { Trade, PnlFilter } from "@/types/trade";
 import { TradeCard } from "@/components/trades/TradeCard";
+import { TradeCalendar } from "@/components/charts/TradeCalendar";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 30, 50, 100];
 const DEBOUNCE_MS = 400;
@@ -71,6 +72,7 @@ const TradesPage = () => {
   const [activePreset, setActivePreset] = useState<DatePreset>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [calendarDate, setCalendarDate] = useState<string | null>(null);
 
   // TanStack sorting
   const [sorting, setSorting] = useState<SortingState>([
@@ -94,6 +96,7 @@ const TradesPage = () => {
       return;
     }
     setActivePreset(preset);
+    setCalendarDate(null);
     const tz = getLocalTimeZone();
     const now = today(tz);
     let start: DateValue;
@@ -267,6 +270,7 @@ const TradesPage = () => {
     symbolFilter !== "" ||
     marketFilter !== "" ||
     dateRange !== null ||
+    calendarDate !== null ||
     searchQuery.trim() !== "";
 
   const clearFilters = () => {
@@ -277,6 +281,7 @@ const TradesPage = () => {
     setActivePreset(null);
     setSearchQuery("");
     setDebouncedSearch("");
+    setCalendarDate(null);
   };
 
   return (
@@ -294,6 +299,36 @@ const TradesPage = () => {
 
       {error && (
         <div className="mb-4 rounded-lg bg-danger-50 p-3 text-sm text-danger">{error}</div>
+      )}
+
+      {/* Calendar heatmap */}
+      {!isLoading && trades.length > 0 && (
+        <div className="flex justify-center mb-4">
+          <div className="w-full">
+            <TradeCalendar
+              trades={trades}
+              selectedDate={calendarDate}
+              onSelectDate={(date) => {
+                setCalendarDate(date);
+                setActivePreset(null);
+                if (date) {
+                  const d = parseDate(date);
+                  setDateRange({ start: d, end: d });
+                } else {
+                  setDateRange(null);
+                }
+              }}
+              highlightRange={
+                dateRange
+                  ? {
+                      start: dateRange.start.toString(),
+                      end: dateRange.end.toString(),
+                    }
+                  : null
+              }
+            />
+          </div>
+        </div>
       )}
 
       {/* Filters */}
@@ -347,6 +382,7 @@ const TradesPage = () => {
             onChange={(v) => {
               setDateRange(v);
               setActivePreset(null);
+              setCalendarDate(null);
             }}
             className="w-full sm:w-64"
             granularity="day"
