@@ -80,8 +80,8 @@ export const EquityCurve = ({ trades }: EquityCurveProps) => {
                   borderRadius: "8px",
                   fontSize: "13px",
                 }}
-                formatter={(value: number) => [`$${value.toFixed(2)}`, "P&L"]}
-                labelFormatter={(label: string) => label}
+                formatter={(value) => [`$${Number(value).toFixed(2)}`, "P&L"]}
+                labelFormatter={(label) => String(label)}
               />
               <Area
                 type="monotone"

@@ -18,6 +18,12 @@ import { fetchDashboardStats } from "@/services/statsService";
 import { fetchTrades } from "@/services/tradeService";
 import { Statuses } from "@/store/statuses/statuses";
 import { TradeCard } from "@/components/trades/TradeCard";
+import { EquityCurve } from "@/components/charts/EquityCurve";
+import { DailyPnlChart } from "@/components/charts/DailyPnlChart";
+import { SymbolDistribution } from "@/components/charts/SymbolDistribution";
+import { WeekdayPnlChart } from "@/components/charts/WeekdayPnlChart";
+import { PnlDistributionChart } from "@/components/charts/PnlDistributionChart";
+import { SymbolPnlChart } from "@/components/charts/SymbolPnlChart";
 
 const DashboardPage = () => {
   const { t } = useTranslation();
@@ -223,6 +229,18 @@ const DashboardPage = () => {
               </CardBody>
             </Card>
           </div>
+
+          {/* Charts */}
+          {trades.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+              <EquityCurve trades={trades} />
+              <DailyPnlChart trades={trades} />
+              <SymbolDistribution trades={trades} />
+              <WeekdayPnlChart trades={trades} />
+              <PnlDistributionChart trades={trades} />
+              <SymbolPnlChart trades={trades} />
+            </div>
+          )}
         </>
       )}
 

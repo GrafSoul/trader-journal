@@ -220,7 +220,24 @@
         "profitFactor": "Profit Factor",
         "recentTrades": "Последние сделки",
         "bestTrade": "Лучшая сделка",
-        "worstTrade": "Худшая сделка"
+        "worstTrade": "Худшая сделка",
+        "equityCurve": "Кривая доходности",
+        "dailyPnl": "P&L по дням",
+        "symbolDistribution": "Распределение по инструментам",
+        "weekdayPnl": "Средний P&L по дням недели",
+        "avgPnl": "Средний P&L",
+        "weekdayTrades": "сделок",
+        "weekdays": {
+            "mon": "Пн",
+            "tue": "Вт",
+            "wed": "Ср",
+            "thu": "Чт",
+            "fri": "Пт",
+            "sat": "Сб",
+            "sun": "Вс"
+        },
+        "pnlDistribution": "Распределение P&L",
+        "symbolPnl": "P&L по инструментам"
     },
     "import": {
         "title": "Импорт сделок",

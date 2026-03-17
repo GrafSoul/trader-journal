@@ -56,7 +56,7 @@ export const SymbolDistribution = ({ trades }: SymbolDistributionProps) => {
                 paddingAngle={2}
                 dataKey="value"
                 label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
+                  `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
                 }
                 labelLine={{ stroke: "hsl(var(--heroui-default-400))" }}
               >
@@ -71,7 +71,7 @@ export const SymbolDistribution = ({ trades }: SymbolDistributionProps) => {
                   borderRadius: "8px",
                   fontSize: "13px",
                 }}
-                formatter={(value: number) => [value, t("dashboard.totalTrades")]}
+                formatter={(value) => [String(value), t("dashboard.totalTrades")]}
               />
               <Legend
                 wrapperStyle={{ fontSize: "12px" }}

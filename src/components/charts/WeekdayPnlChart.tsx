@@ -13,39 +13,43 @@ import {
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import type { Trade } from "@/types/trade";
 
-interface DailyPnlChartProps {
+interface WeekdayPnlChartProps {
   trades: Trade[];
 }
 
-export const DailyPnlChart = ({ trades }: DailyPnlChartProps) => {
+const WEEKDAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+
+export const WeekdayPnlChart = ({ trades }: WeekdayPnlChartProps) => {
   const { t } = useTranslation();
 
   const data = useMemo(() => {
-    const closedTrades = trades.filter(
-      (tr) => tr.status === "closed" && tr.close_time && tr.pnl !== null
-    );
+    const weekdayTotals = new Array(7).fill(0);
+    const weekdayCounts = new Array(7).fill(0);
 
-    const dailyMap = new Map<string, number>();
-    for (const tr of closedTrades) {
-      const day = tr.close_time!.slice(0, 10);
-      dailyMap.set(day, (dailyMap.get(day) || 0) + tr.pnl!);
+    for (const tr of trades) {
+      if (tr.status !== "closed" || !tr.close_time || tr.pnl === null) continue;
+      const date = new Date(tr.close_time);
+      const jsDay = date.getDay();
+      const idx = jsDay === 0 ? 6 : jsDay - 1;
+      weekdayTotals[idx] += tr.pnl;
+      weekdayCounts[idx] += 1;
     }
 
-    return Array.from(dailyMap.entries())
-      .sort(([a], [b]) => (a > b ? 1 : -1))
-      .slice(-30)
-      .map(([date, pnl]) => ({
-        date,
-        pnl: Math.round(pnl * 100) / 100,
-      }));
-  }, [trades]);
+    return WEEKDAY_KEYS.map((key, idx) => ({
+      day: t(`dashboard.weekdays.${key}`),
+      avgPnl: weekdayCounts[idx] > 0
+        ? Math.round((weekdayTotals[idx] / weekdayCounts[idx]) * 100) / 100
+        : 0,
+      count: weekdayCounts[idx],
+    })).filter((d) => d.count > 0);
+  }, [trades, t]);
 
   if (data.length < 1) return null;
 
   return (
     <Card>
       <CardHeader>
-        <h3 className="text-lg font-semibold">{t("dashboard.dailyPnl")}</h3>
+        <h3 className="text-lg font-semibold">{t("dashboard.weekdayPnl")}</h3>
       </CardHeader>
       <CardBody className="pt-0">
         <div className="h-64">
@@ -53,10 +57,8 @@ export const DailyPnlChart = ({ trades }: DailyPnlChartProps) => {
             <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--heroui-default-200))" />
               <XAxis
-                dataKey="date"
-                tick={{ fontSize: 11, fill: "hsl(var(--heroui-default-500))" }}
-                tickFormatter={(v: string) => v.slice(5)}
-                interval="preserveStartEnd"
+                dataKey="day"
+                tick={{ fontSize: 12, fill: "hsl(var(--heroui-default-500))" }}
               />
               <YAxis
                 tick={{ fontSize: 11, fill: "hsl(var(--heroui-default-500))" }}
@@ -70,15 +72,17 @@ export const DailyPnlChart = ({ trades }: DailyPnlChartProps) => {
                   borderRadius: "8px",
                   fontSize: "13px",
                 }}
-                formatter={(value) => [`$${Number(value).toFixed(2)}`, "P&L"]}
-                labelFormatter={(label) => String(label)}
+                formatter={(value, _name, props) => {
+                  const count = (props.payload as { count: number }).count;
+                  return [`$${Number(value).toFixed(2)} (${count} ${t("dashboard.weekdayTrades")})`, t("dashboard.avgPnl")];
+                }}
               />
-              <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="avgPnl" radius={[4, 4, 0, 0]}>
                 {data.map((entry, index) => (
                   <Cell
                     key={index}
-                    fill={entry.pnl >= 0 ? "#17c964" : "#f31260"}
-                    fillOpacity={0.8}
+                    fill={entry.avgPnl >= 0 ? "#17c964" : "#f31260"}
+                    fillOpacity={0.85}
                   />
                 ))}
               </Bar>

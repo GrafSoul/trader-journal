@@ -220,7 +220,24 @@
         "profitFactor": "Profit Factor",
         "recentTrades": "Recent trades",
         "bestTrade": "Best trade",
-        "worstTrade": "Worst trade"
+        "worstTrade": "Worst trade",
+        "equityCurve": "Equity Curve",
+        "dailyPnl": "Daily P&L",
+        "symbolDistribution": "Symbol Distribution",
+        "weekdayPnl": "Average P&L by Weekday",
+        "avgPnl": "Avg P&L",
+        "weekdayTrades": "trades",
+        "weekdays": {
+            "mon": "Mon",
+            "tue": "Tue",
+            "wed": "Wed",
+            "thu": "Thu",
+            "fri": "Fri",
+            "sat": "Sat",
+            "sun": "Sun"
+        },
+        "pnlDistribution": "P&L Distribution",
+        "symbolPnl": "P&L by Symbol"
     },
     "import": {
         "title": "Import trades",
