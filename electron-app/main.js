@@ -15,13 +15,18 @@ function loadEnvFile() {
             const eqIdx = trimmed.indexOf('=');
             if (eqIdx === -1) continue;
             const key = trimmed.slice(0, eqIdx).trim();
-            const value = trimmed.slice(eqIdx + 1).trim();
-            if (!process.env[key]) {
-                process.env[key] = value;
+            let value = trimmed.slice(eqIdx + 1).trim();
+            // Strip surrounding quotes
+            if ((value.startsWith('"') && value.endsWith('"')) ||
+                (value.startsWith("'") && value.endsWith("'"))) {
+                value = value.slice(1, -1);
             }
+            // Always overwrite — .env.local takes priority
+            process.env[key] = value;
         }
-    } catch {
-        // .env.local not found — skip
+        console.log('[ENV] Loaded .env.local:', envPath);
+    } catch (err) {
+        console.warn('[ENV] .env.local not found:', envPath, err.message);
     }
 }
 loadEnvFile();
