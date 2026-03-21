@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import tradeReducer from './slices/tradeSlice';
 import statsReducer from './slices/statsSlice';
 import profileReducer from './slices/profileSlice';
+import newsReducer from './slices/newsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     trades: tradeReducer,
     stats: statsReducer,
     profile: profileReducer,
+    news: newsReducer,
   },
 });
 

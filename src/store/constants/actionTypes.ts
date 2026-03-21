@@ -24,3 +24,13 @@ export const TRADES_DELETE_ALL = 'trades/deleteAll';
 
 // ==================== STATS ACTIONS ====================
 export const STATS_FETCH_DASHBOARD = 'stats/fetchDashboard';
+
+// ==================== NEWS ACTIONS ====================
+export const NEWS_FETCH = 'news/fetch';
+
+// ==================== FEEDS ACTIONS ====================
+export const FEEDS_FETCH = 'feeds/fetch';
+export const FEEDS_ADD = 'feeds/add';
+export const FEEDS_DELETE = 'feeds/delete';
+export const FEEDS_TOGGLE = 'feeds/toggle';
+export const FEEDS_UPDATE = 'feeds/update';

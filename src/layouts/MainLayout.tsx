@@ -17,6 +17,7 @@ import {
   CandlestickChart,
   Menu,
   X,
+  Newspaper,
 } from "lucide-react";
 
 export const MainLayout = () => {
@@ -50,13 +51,14 @@ export const MainLayout = () => {
   const navItems = [
     { to: "/dashboard", icon: LayoutDashboard, label: t("nav.dashboard") },
     { to: "/trades", icon: TrendingUp, label: t("nav.trades") },
+    { to: "/news", icon: Newspaper, label: t("nav.news") },
     { to: "/import", icon: Upload, label: t("nav.import") },
     { to: "/settings", icon: Settings, label: t("nav.settings") },
   ];
 
   const sidebarContent = (
     <>
-      <div className="flex h-[65px] items-center justify-between gap-2 px-4 border-b border-divider">
+      <div className="shrink-0 flex h-[65px] items-center justify-between gap-2 px-4 border-b border-divider">
         <div className="flex items-center gap-2">
           <CandlestickChart size={28} className="text-success" />
           <h2 className="text-xl font-bold">{t("common.appName")}</h2>
@@ -74,7 +76,7 @@ export const MainLayout = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 min-h-0 overflow-y-auto p-4">
         <ul className="flex flex-col gap-1">
           {navItems.map((item) => {
             const isActive =
@@ -99,8 +101,8 @@ export const MainLayout = () => {
         </ul>
       </nav>
 
-      {/* Sidebar Footer */}
-      <div className="p-4 border-t border-divider">
+      {/* Sidebar Footer — always pinned to bottom */}
+      <div className="shrink-0 p-4 border-t border-divider">
         <Button
           variant="flat"
           className="w-full justify-start"
@@ -113,9 +115,9 @@ export const MainLayout = () => {
   );
 
   return (
-    <div className="flex min-h-screen">
-      {/* Desktop Sidebar */}
-      <aside className="hidden w-64 border-r border-divider bg-content1 lg:flex lg:flex-col">
+    <div className="flex h-full overflow-hidden">
+      {/* Desktop Sidebar — fixed, never scrolls */}
+      <aside className="hidden w-64 h-full shrink-0 overflow-hidden border-r border-divider bg-content1 lg:flex lg:flex-col">
         {sidebarContent}
       </aside>
 
@@ -136,9 +138,9 @@ export const MainLayout = () => {
       )}
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 overflow-x-hidden">
-        {/* Header */}
-        <header className="sticky top-0 z-40 border-b border-divider bg-background/80 backdrop-blur-md">
+      <main className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
+        {/* Header — fixed, never scrolls */}
+        <header className="shrink-0 z-40 border-b border-divider bg-background/80 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between gap-4 px-4">
             {/* Left: hamburger menu (mobile) */}
             <Button
@@ -177,8 +179,8 @@ export const MainLayout = () => {
           </div>
         </header>
 
-        {/* Page content */}
-        <div className="p-4 lg:p-6">
+        {/* Page content — only this area scrolls */}
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
           <Outlet />
         </div>
       </main>

@@ -84,6 +84,7 @@
         "dashboard": "Главная",
         "trades": "Сделки",
         "analytics": "Аналитика",
+        "news": "Новости",
         "settings": "Настройки",
         "import": "Импорт"
     },
@@ -315,6 +316,35 @@
         "tradeDuration": "Длительность сделок",
         "hourlyPnl": "P&L по часам",
         "marketPnl": "P&L по рынкам"
+    },
+    "news": {
+        "title": "Новости рынка",
+        "loading": "Загрузка новостей...",
+        "error": "Не удалось загрузить новости",
+        "retry": "Попробовать снова",
+        "empty": "Нет доступных новостей",
+        "noResults": "Новости не соответствуют фильтрам",
+        "refresh": "Обновить",
+        "lastUpdated": "Обновлено в {{time}}",
+        "showing": "Показано {{shown}} из {{total}}",
+        "pageSize": "На странице",
+        "manageSources": "Источники",
+        "sources": "RSS-источники",
+        "noSources": "Нет добавленных источников",
+        "addSource": "Добавить источник",
+        "feedName": "Название источника",
+        "feedUrl": "URL RSS-ленты",
+        "editSource": "Редактировать источник",
+        "openUrl": "Открыть URL",
+        "testFeed": "Проверить фид",
+        "validFeed": "Валидный RSS/Atom фид",
+        "invalidFeed": "Не валидный RSS/Atom фид",
+        "testing": "Проверка...",
+        "deleteConfirm": "Удалить этот источник?",
+        "filters": {
+            "searchPlaceholder": "Поиск новостей...",
+            "sources": "Источники"
+        }
     },
     "import": {
         "title": "Импорт сделок",

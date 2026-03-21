@@ -179,6 +179,32 @@ export interface Database {
           updated_at?: string;
         };
       };
+      news_feeds: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          url: string;
+          enabled: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          url: string;
+          enabled?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          url?: string;
+          enabled?: boolean;
+          created_at?: string;
+        };
+      };
       trade_tags: {
         Row: {
           id: string;

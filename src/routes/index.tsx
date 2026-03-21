@@ -24,6 +24,7 @@ const TradeDetailPage = lazy(() => import("@/pages/trades/TradeDetailPage"));
 const EditTradePage = lazy(() => import("@/pages/trades/EditTradePage"));
 const ImportPage = lazy(() => import("@/pages/ImportPage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
+const NewsPage = lazy(() => import("@/pages/NewsPage"));
 
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
@@ -74,6 +75,7 @@ export const router = createHashRouter([
               { path: "trades/:id/edit", element: withSuspense(EditTradePage) },
               { path: "import", element: withSuspense(ImportPage) },
               { path: "settings", element: withSuspense(SettingsPage) },
+              { path: "news", element: withSuspense(NewsPage) },
             ],
           },
         ],

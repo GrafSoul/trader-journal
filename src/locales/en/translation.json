@@ -84,6 +84,7 @@
         "dashboard": "Dashboard",
         "trades": "Trades",
         "analytics": "Analytics",
+        "news": "News",
         "settings": "Settings",
         "import": "Import"
     },
@@ -315,6 +316,35 @@
         "tradeDuration": "Trade Duration",
         "hourlyPnl": "P&L by Hour",
         "marketPnl": "P&L by Market"
+    },
+    "news": {
+        "title": "Market News",
+        "loading": "Loading news...",
+        "error": "Failed to load news",
+        "retry": "Try again",
+        "empty": "No news available",
+        "noResults": "No news matches your filters",
+        "refresh": "Refresh",
+        "lastUpdated": "Updated at {{time}}",
+        "showing": "Showing {{shown}} of {{total}}",
+        "pageSize": "Per page",
+        "manageSources": "Sources",
+        "sources": "RSS Sources",
+        "noSources": "No sources added",
+        "addSource": "Add source",
+        "feedName": "Source name",
+        "feedUrl": "RSS feed URL",
+        "editSource": "Edit source",
+        "openUrl": "Open URL",
+        "testFeed": "Test feed",
+        "validFeed": "Valid RSS/Atom feed",
+        "invalidFeed": "Not a valid RSS/Atom feed",
+        "testing": "Testing...",
+        "deleteConfirm": "Delete this source?",
+        "filters": {
+            "searchPlaceholder": "Search news...",
+            "sources": "Sources"
+        }
     },
     "import": {
         "title": "Import trades",

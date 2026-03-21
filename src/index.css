@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
 html.dark {
     color-scheme: dark;
 }
@@ -10,5 +18,5 @@ html.light {
 }
 
 body {
-    @apply min-h-screen bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased;
 }

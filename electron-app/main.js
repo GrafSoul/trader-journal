@@ -1,6 +1,8 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, Menu, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
+const http = require('http');
 
 let mainWindow;
 let isAlwaysOnTop = false;
@@ -36,8 +38,14 @@ function createWindow() {
         mainWindow.webContents.send('window-state-changed', { isMaximized: false });
     });
 
-    // Load the built React app
-    mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    // Load the app — dev server or built files
+    const isDev = process.argv.includes('--dev');
+    if (isDev) {
+        mainWindow.loadURL('http://localhost:3000');
+        mainWindow.webContents.openDevTools({ mode: 'detach' });
+    } else {
+        mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
+    }
 
     // Inject custom titlebar after page loads
     mainWindow.webContents.on('did-finish-load', () => {
@@ -140,6 +148,70 @@ ipcMain.handle('maximize-window', () => {
 
 ipcMain.handle('close-window', () => {
     mainWindow.close();
+});
+
+// ==================== RSS FETCH ====================
+ipcMain.handle('fetch-rss', async (event, feedUrl) => {
+    const RSS_HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (compatible; TraderJournal/1.0; RSS Reader)',
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+    };
+
+    const fetchWithRedirects = (targetUrl, maxRedirects = 5) => {
+        return new Promise((resolve) => {
+            if (maxRedirects <= 0) {
+                resolve({ ok: false, error: 'Too many redirects' });
+                return;
+            }
+
+            let parsedUrl;
+            try {
+                parsedUrl = new URL(targetUrl);
+            } catch {
+                resolve({ ok: false, error: `Invalid URL: ${targetUrl}` });
+                return;
+            }
+
+            const lib = parsedUrl.protocol === 'https:' ? https : http;
+            const request = lib.get(
+                targetUrl,
+                { headers: RSS_HEADERS, timeout: 15000 },
+                (res) => {
+                    // Handle redirects — resolve relative URLs against the original
+                    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                        const resolvedUrl = new URL(res.headers.location, targetUrl).href;
+                        res.resume(); // drain response body
+                        fetchWithRedirects(resolvedUrl, maxRedirects - 1).then(resolve);
+                        return;
+                    }
+
+                    if (res.statusCode !== 200) {
+                        resolve({ ok: false, error: `HTTP ${res.statusCode}` });
+                        return;
+                    }
+
+                    let data = '';
+                    res.setEncoding('utf8');
+                    res.on('data', (chunk) => { data += chunk; });
+                    res.on('end', () => resolve({ ok: true, data }));
+                    res.on('error', (err) => resolve({ ok: false, error: err.message }));
+                }
+            );
+
+            request.on('error', (err) => resolve({ ok: false, error: err.message }));
+            request.on('timeout', () => {
+                request.destroy();
+                resolve({ ok: false, error: 'Request timed out' });
+            });
+        });
+    };
+
+    return fetchWithRedirects(feedUrl);
+});
+
+// ==================== OPEN EXTERNAL URL ====================
+ipcMain.handle('open-external', async (event, url) => {
+    await shell.openExternal(url);
 });
 
 app.whenReady().then(createWindow);
