@@ -92,7 +92,7 @@ async function testFeedUrl(url: string): Promise<boolean> {
       if (!result.ok || !result.data) return false;
       text = result.data;
     } else {
-      const response = await fetch(url, {
+      const response = await fetch(`/api/rss?url=${encodeURIComponent(url)}`, {
         signal: AbortSignal.timeout(10_000),
       });
       if (!response.ok) return false;

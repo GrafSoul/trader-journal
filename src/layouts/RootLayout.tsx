@@ -17,13 +17,8 @@ export const RootLayout = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("🔔 Auth event:", event);
-
       if (event === "PASSWORD_RECOVERY") {
         // Password recovery flow - redirect to reset password page
-        console.log(
-          "🔑 PASSWORD_RECOVERY detected, redirecting to reset-password"
-        );
         dispatch(setAuth({ user: session?.user ?? null, session }));
         navigate("/auth/reset-password", { replace: true });
       } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {

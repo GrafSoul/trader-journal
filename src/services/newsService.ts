@@ -5,6 +5,14 @@ import { parseRssXml } from "@/utils/rssParser";
 import * as types from "@/store/constants/actionTypes";
 
 // ==================== RSS FETCHER ====================
+function getRssUrl(url: string) {
+  const isElectron =
+    typeof window !== "undefined" && !!window.electronAPI?.fetchRss;
+
+  if (isElectron) return url;
+  return `/api/rss?url=${encodeURIComponent(url)}`;
+}
+
 async function fetchRssXml(url: string): Promise<string> {
   const isElectron =
     typeof window !== "undefined" && !!window.electronAPI?.fetchRss;
@@ -17,7 +25,7 @@ async function fetchRssXml(url: string): Promise<string> {
     return result.data;
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(getRssUrl(url), {
     signal: AbortSignal.timeout(15_000),
   });
 

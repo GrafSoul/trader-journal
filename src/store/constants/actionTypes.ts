@@ -28,6 +28,9 @@ export const STATS_FETCH_DASHBOARD = 'stats/fetchDashboard';
 // ==================== NEWS ACTIONS ====================
 export const NEWS_FETCH = 'news/fetch';
 
+// ==================== CALENDAR ACTIONS ====================
+export const CALENDAR_FETCH = 'calendar/fetch';
+
 // ==================== FEEDS ACTIONS ====================
 export const FEEDS_FETCH = 'feeds/fetch';
 export const FEEDS_ADD = 'feeds/add';

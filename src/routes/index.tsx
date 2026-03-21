@@ -25,6 +25,7 @@ const EditTradePage = lazy(() => import("@/pages/trades/EditTradePage"));
 const ImportPage = lazy(() => import("@/pages/ImportPage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const NewsPage = lazy(() => import("@/pages/NewsPage"));
+const CalendarPage = lazy(() => import("@/pages/CalendarPage"));
 
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
@@ -76,6 +77,7 @@ export const router = createHashRouter([
               { path: "import", element: withSuspense(ImportPage) },
               { path: "settings", element: withSuspense(SettingsPage) },
               { path: "news", element: withSuspense(NewsPage) },
+              { path: "calendar", element: withSuspense(CalendarPage) },
             ],
           },
         ],

@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   Newspaper,
+  CalendarDays,
 } from "lucide-react";
 
 export const MainLayout = () => {
@@ -51,6 +52,7 @@ export const MainLayout = () => {
   const navItems = [
     { to: "/dashboard", icon: LayoutDashboard, label: t("nav.dashboard") },
     { to: "/trades", icon: TrendingUp, label: t("nav.trades") },
+    { to: "/calendar", icon: CalendarDays, label: t("nav.calendar") },
     { to: "/news", icon: Newspaper, label: t("nav.news") },
     { to: "/import", icon: Upload, label: t("nav.import") },
     { to: "/settings", icon: Settings, label: t("nav.settings") },

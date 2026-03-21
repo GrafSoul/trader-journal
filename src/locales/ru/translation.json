@@ -84,6 +84,7 @@
         "dashboard": "Главная",
         "trades": "Сделки",
         "analytics": "Аналитика",
+        "calendar": "Календарь",
         "news": "Новости",
         "settings": "Настройки",
         "import": "Импорт"
@@ -344,6 +345,62 @@
         "filters": {
             "searchPlaceholder": "Поиск новостей...",
             "sources": "Источники"
+        }
+    },
+    "calendar": {
+        "title": "Экономический календарь",
+        "description": "Календарь событий в стиле Myfxbook на данных Forex Factory",
+        "filters": "Фильтры",
+        "refresh": "Обновить",
+        "searchPlaceholder": "Поиск события, валюты или значения...",
+        "timezone": "Часовой пояс",
+        "currency": "Валюта",
+        "impact": "Влияние",
+        "showPast": "Показывать прошедшие события",
+        "empty": "По выбранным фильтрам событий нет",
+        "lastUpdated": "Обновлено: {{time}}",
+        "startsIn": "До события {{value}}",
+        "upNext": "Далее",
+        "noUpcoming": "В текущем диапазоне нет будущих событий",
+        "viewDetails": "Открыть детали",
+        "legend": "Легенда",
+        "openSource": "Открыть источник",
+        "track": "Следить",
+        "untrack": "Не следить",
+        "thisWeek": "Эта неделя",
+        "nextWeek": "Следующая неделя",
+        "allDay": "Весь день",
+        "tentative": "Время уточняется",
+        "period": {
+            "today": "Сегодня",
+            "tomorrow": "Завтра",
+            "thisWeek": "На этой неделе",
+            "nextWeek": "На следующей неделе"
+        },
+        "status": {
+            "past": "Прошло",
+            "live": "Сейчас",
+            "soon": "Скоро",
+            "upcoming": "Будет"
+        },
+        "impactLabel": {
+            "High": "Высокое",
+            "Medium": "Среднее",
+            "Low": "Низкое",
+            "Holiday": "Праздник",
+            "Unknown": "Неизвестно"
+        },
+        "table": {
+            "time": "Время",
+            "status": "Статус",
+            "countdown": "Отсчёт",
+            "currency": "Валюта",
+            "impact": "Влияние",
+            "event": "Событие",
+            "actual": "Факт",
+            "forecast": "Прогноз",
+            "previous": "Предыдущее",
+            "actions": "Действия"
         }
     },
     "import": {

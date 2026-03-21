@@ -4,6 +4,7 @@ import tradeReducer from './slices/tradeSlice';
 import statsReducer from './slices/statsSlice';
 import profileReducer from './slices/profileSlice';
 import newsReducer from './slices/newsSlice';
+import calendarReducer from './slices/calendarSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,7 +13,20 @@ export const store = configureStore({
     stats: statsReducer,
     profile: profileReducer,
     news: newsReducer,
+    calendar: calendarReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        warnAfter: 256,
+        ignoredActions: ['auth/setAuth'],
+        ignoredActionPaths: ['payload.session', 'payload.user'],
+        ignoredPaths: ['auth.session', 'auth.user'],
+      },
+      immutableCheck: {
+        warnAfter: 256,
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

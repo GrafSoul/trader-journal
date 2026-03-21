@@ -84,6 +84,7 @@
         "dashboard": "Dashboard",
         "trades": "Trades",
         "analytics": "Analytics",
+        "calendar": "Calendar",
         "news": "News",
         "settings": "Settings",
         "import": "Import"
@@ -344,6 +345,62 @@
         "filters": {
             "searchPlaceholder": "Search news...",
             "sources": "Sources"
+        }
+    },
+    "calendar": {
+        "title": "Economic Calendar",
+        "description": "Myfxbook-like event calendar powered by Forex Factory export",
+        "filters": "Filters",
+        "refresh": "Refresh",
+        "searchPlaceholder": "Search event, currency or value...",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "impact": "Impact",
+        "showPast": "Show past events",
+        "empty": "No events found for the selected filters",
+        "lastUpdated": "Updated: {{time}}",
+        "startsIn": "Starts in {{value}}",
+        "upNext": "Up Next",
+        "noUpcoming": "No upcoming events in the current range",
+        "viewDetails": "View details",
+        "legend": "Legend",
+        "openSource": "Open source",
+        "track": "Track",
+        "untrack": "Untrack",
+        "thisWeek": "This week",
+        "nextWeek": "Next week",
+        "allDay": "All Day",
+        "tentative": "Tentative",
+        "period": {
+            "today": "Today",
+            "tomorrow": "Tomorrow",
+            "thisWeek": "This Week",
+            "nextWeek": "Next Week"
+        },
+        "status": {
+            "past": "Past",
+            "live": "Live",
+            "soon": "Soon",
+            "upcoming": "Upcoming"
+        },
+        "impactLabel": {
+            "High": "High",
+            "Medium": "Medium",
+            "Low": "Low",
+            "Holiday": "Holiday",
+            "Unknown": "Unknown"
+        },
+        "table": {
+            "time": "Time",
+            "status": "Status",
+            "countdown": "Countdown",
+            "currency": "Currency",
+            "impact": "Impact",
+            "event": "Event",
+            "actual": "Actual",
+            "forecast": "Forecast",
+            "previous": "Previous",
+            "actions": "Actions"
         }
     },
     "import": {
