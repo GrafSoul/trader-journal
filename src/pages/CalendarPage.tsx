@@ -19,6 +19,7 @@ import {
   Clock3,
   ExternalLink,
   Filter,
+  Globe,
   RefreshCw,
   Search,
 } from "lucide-react";
@@ -458,6 +459,28 @@ const CalendarPage = () => {
     );
   };
 
+  const openAiForEvent = (event: CalendarEvent) => {
+    setAiContext({
+      title: event.title,
+      description: `${event.currency} - ${event.impact} impact`,
+      source: "Forex Factory",
+      url: event.url ?? null,
+      type: "calendar",
+      meta: {
+        currency: event.currency,
+        impact: event.impact,
+        ...(event.actual && { actual: event.actual }),
+        ...(event.forecast && { forecast: event.forecast }),
+        ...(event.previous && { previous: event.previous }),
+      },
+    });
+  };
+
+  const searchEventOnWeb = (event: CalendarEvent) => {
+    const query = encodeURIComponent(`${event.title} ${event.currency} economic calendar`);
+    window.open(`https://www.google.com/search?q=${query}`, "_blank", "noopener,noreferrer");
+  };
+
   const resetFilters = useCallback(() => {
     setRange(DEFAULT_RANGE);
     setSearch("");
@@ -799,13 +822,29 @@ const CalendarPage = () => {
                           <td className="px-4 py-3">{event.forecast || "—"}</td>
                           <td className="px-4 py-3">{event.previous || "—"}</td>
                           <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
                               <Button
                                 size="sm"
                                 variant={tracked ? "solid" : "flat"}
                                 color={tracked ? "primary" : "default"}
                                 onPress={() => toggleTracked(event.id)}>
                                 {tracked ? t("calendar.untrack") : t("calendar.track")}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="light"
+                                isIconOnly
+                                onPress={() => openAiForEvent(event)}
+                                aria-label={t("ai.discuss")}>
+                                <Bot size={14} />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="light"
+                                isIconOnly
+                                onPress={() => searchEventOnWeb(event)}
+                                aria-label={t("calendar.searchWeb")}>
+                                <Globe size={14} />
                               </Button>
                               {isSafeUrl(event.url) && (
                                 <Button
@@ -941,29 +980,23 @@ const CalendarPage = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       variant="flat"
                       color="secondary"
                       startContent={<Bot size={14} />}
                       onPress={() => {
-                        setAiContext({
-                          title: selectedEvent.title,
-                          description: `${selectedEvent.currency} - ${selectedEvent.impact} impact`,
-                          source: "Forex Factory",
-                          url: selectedEvent.url ?? null,
-                          type: "calendar",
-                          meta: {
-                            currency: selectedEvent.currency,
-                            impact: selectedEvent.impact,
-                            ...(selectedEvent.actual && { actual: selectedEvent.actual }),
-                            ...(selectedEvent.forecast && { forecast: selectedEvent.forecast }),
-                            ...(selectedEvent.previous && { previous: selectedEvent.previous }),
-                          },
-                        });
+                        openAiForEvent(selectedEvent);
                         setSelectedEvent(null);
                       }}>
                       {t("ai.discuss")}
+                    </Button>
+                    <Button
+                      variant="flat"
+                      color="default"
+                      startContent={<Globe size={14} />}
+                      onPress={() => searchEventOnWeb(selectedEvent)}>
+                      {t("calendar.searchWeb")}
                     </Button>
                     {isSafeUrl(selectedEvent.url) && (
                       <Button

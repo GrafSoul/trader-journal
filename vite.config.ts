@@ -3,15 +3,16 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
 
-// ==================== AI DISCUSS PROXY ====================
+// ==================== AI DISCUSS PROXY (OpenRouter) ====================
 function aiDiscussProxy() {
-  let anthropicKey = ''
+  let openrouterKey = ''
+  const AI_MODEL = 'google/gemini-2.5-flash'
+  const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
   return {
     name: 'ai-discuss-proxy',
     configureServer(server) {
-      // Load API key from env (server-side only, never exposed to client)
-      anthropicKey = process.env.ANTHROPIC_API_KEY ?? loadEnv('development', process.cwd(), '').ANTHROPIC_API_KEY ?? ''
+      openrouterKey = process.env.OPENROUTER_API_KEY ?? loadEnv('development', process.cwd(), '').OPENROUTER_API_KEY ?? ''
 
       server.middlewares.use('/api/ai-discuss', async (req, res) => {
         if (req.method !== 'POST') {
@@ -20,10 +21,10 @@ function aiDiscussProxy() {
           return
         }
 
-        if (!anthropicKey) {
+        if (!openrouterKey) {
           res.statusCode = 500
           res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured. Add it to .env.local' }))
+          res.end(JSON.stringify({ error: 'OPENROUTER_API_KEY not configured. Add it to .env.local' }))
           return
         }
 
@@ -45,64 +46,79 @@ function aiDiscussProxy() {
             })
             if (articleRes.ok) {
               const html = await articleRes.text()
-              // Strip HTML tags, keep text content
               articleText = html
                 .replace(/<script[\s\S]*?<\/script>/gi, '')
                 .replace(/<style[\s\S]*?<\/style>/gi, '')
                 .replace(/<[^>]+>/g, ' ')
                 .replace(/\s+/g, ' ')
                 .trim()
-                .slice(0, 8000) // Limit to ~8K chars
+                .slice(0, 8000)
             }
           } catch {
-            // Article fetch failed, continue without it
+            // continue without article
           }
         }
 
-        // Build system prompt
+        // Build system message
         const metaStr = context.meta
           ? Object.entries(context.meta).map(([k, v]) => `${k}: ${v}`).join('\n')
           : ''
 
-        const systemPrompt = `You are a financial analyst AI assistant in a Trader Journal app.
+        const systemMessage = `You are a senior financial analyst AI assistant in a Trader Journal desktop app.
 The user wants to discuss a ${context.type === 'calendar' ? 'economic calendar event' : 'financial news article'}.
 
-Context:
-- Title: ${context.title}
-- Source: ${context.source}
-- Description: ${context.description}
-${metaStr ? `- Details:\n${metaStr}` : ''}
-${articleText ? `\nFull article text:\n${articleText}` : ''}
+# Context
+- **Title:** ${context.title}
+- **Source:** ${context.source}
+- **Description:** ${context.description}
+${metaStr ? `- **Details:**\n${metaStr}` : ''}
+${articleText ? `\n# Full article text\n${articleText}` : ''}
 
-Instructions:
-- Respond in the same language the user writes in (Russian or English)
-- Be concise and professional
-- Focus on market impact, trading implications, and actionable insights
-- If the user asks about specific currency pairs or assets, provide relevant analysis
-- When article text is available, reference specific details from it`
+# Response rules
+1. **Language:** Always respond in the same language the user writes in (Russian or English)
+2. **Formatting:** ALWAYS use rich Markdown formatting in your responses:
+   - Use **bold** for key terms, numbers, asset names, and important conclusions
+   - Use bullet lists and numbered lists for structured information
+   - Use headings (## or ###) to separate sections when the response is long
+   - Use \`code\` for ticker symbols, currency pairs (e.g. \`EUR/USD\`, \`S&P 500\`)
+   - Use > blockquotes for citing article text
+   - Use --- separators between logical sections
+3. **Content focus:**
+   - Lead with the key takeaway in **bold**
+   - Analyze market impact: which assets, sectors, currencies are affected
+   - Provide actionable trading implications
+   - When article text is available, reference and quote specific details
+   - Include relevant context: historical precedents, related events
+4. **Tone:** Professional, concise, data-driven. No fluff.`
+
+        // OpenAI-compatible messages format
+        const apiMessages = [
+          { role: 'system', content: systemMessage },
+          ...messages.map((m) => ({ role: m.role, content: m.content })),
+        ]
 
         try {
-          const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+          const aiRes = await fetch(OPENROUTER_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'x-api-key': anthropicKey,
-              'anthropic-version': '2023-06-01',
+              'Authorization': `Bearer ${openrouterKey}`,
+              'X-Title': 'Trader Journal',
             },
             body: JSON.stringify({
-              model: 'claude-haiku-4-20250414',
+              model: AI_MODEL,
+              messages: apiMessages,
               max_tokens: 2048,
-              system: systemPrompt,
-              messages: messages.map((m) => ({ role: m.role, content: m.content })),
+              temperature: 0.7,
               stream: true,
             }),
           })
 
-          if (!claudeRes.ok) {
-            const errText = await claudeRes.text()
-            res.statusCode = claudeRes.status
+          if (!aiRes.ok) {
+            const errText = await aiRes.text()
+            res.statusCode = aiRes.status
             res.setHeader('Content-Type', 'text/event-stream')
-            res.write(`data: ${JSON.stringify({ type: 'error', content: `Claude API: ${errText}` })}\n\n`)
+            res.write(`data: ${JSON.stringify({ type: 'error', content: `OpenRouter ${aiRes.status}: ${errText}` })}\n\n`)
             res.end()
             return
           }
@@ -117,9 +133,9 @@ Instructions:
             res.write(`data: ${JSON.stringify({ type: 'article', content: `Loaded ${articleText.length} chars from article` })}\n\n`)
           }
 
-          const reader = claudeRes.body?.getReader()
+          const reader = aiRes.body?.getReader()
           if (!reader) {
-            res.write(`data: ${JSON.stringify({ type: 'error', content: 'No stream from Claude' })}\n\n`)
+            res.write(`data: ${JSON.stringify({ type: 'error', content: 'No stream' })}\n\n`)
             res.end()
             return
           }
@@ -142,8 +158,9 @@ Instructions:
 
               try {
                 const event = JSON.parse(data)
-                if (event.type === 'content_block_delta' && event.delta?.text) {
-                  res.write(`data: ${JSON.stringify({ type: 'text', content: event.delta.text })}\n\n`)
+                const text = event.choices?.[0]?.delta?.content
+                if (text) {
+                  res.write(`data: ${JSON.stringify({ type: 'text', content: text })}\n\n`)
                 }
               } catch {
                 // skip

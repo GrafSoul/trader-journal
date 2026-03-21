@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import Markdown from "react-markdown";
 import {
   Button,
   Modal,
@@ -167,6 +168,7 @@ export const AiDiscussModal = ({
               isIconOnly
               size="sm"
               variant="light"
+              className="mr-6"
               onPress={clearChat}
               aria-label={t("ai.clearChat")}>
               <Trash2 size={16} />
@@ -209,24 +211,29 @@ export const AiDiscussModal = ({
               )}
             </div>
 
-            {/* Empty state */}
-            {messages.length === 0 && !streamingText && (
-              <div className="flex flex-1 flex-col items-center justify-center gap-2 py-8 text-center">
-                <Bot size={40} className="text-default-300" />
+            {/* Quick action buttons — always visible when not loading */}
+            {!isLoading && (
+              <div className="grid grid-cols-3 gap-2">
+                {[t("ai.quickTranslate"), t("ai.quickImpact"), t("ai.quickSummary")].map(
+                  (hint) => (
+                    <Button
+                      key={hint}
+                      size="sm"
+                      variant="flat"
+                      className="w-full"
+                      onPress={() => void sendMessage(hint)}>
+                      {hint}
+                    </Button>
+                  )
+                )}
+              </div>
+            )}
+
+            {/* Empty state hint */}
+            {messages.length === 0 && !streamingText && !isLoading && (
+              <div className="flex flex-col items-center justify-center gap-2 py-4 text-center">
+                <Bot size={32} className="text-default-300" />
                 <p className="text-sm text-default-400">{t("ai.emptyHint")}</p>
-                <div className="mt-2 flex flex-wrap justify-center gap-2">
-                  {[t("ai.quickTranslate"), t("ai.quickImpact"), t("ai.quickSummary")].map(
-                    (hint) => (
-                      <Button
-                        key={hint}
-                        size="sm"
-                        variant="flat"
-                        onPress={() => void sendMessage(hint)}>
-                        {hint}
-                      </Button>
-                    )
-                  )}
-                </div>
               </div>
             )}
 
@@ -241,7 +248,13 @@ export const AiDiscussModal = ({
                       ? "bg-primary text-primary-foreground"
                       : "bg-content2 text-foreground"
                   }`}>
-                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                  {msg.role === "user" ? (
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                  ) : (
+                    <div className="ai-markdown">
+                      <Markdown>{msg.content}</Markdown>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -250,7 +263,9 @@ export const AiDiscussModal = ({
             {streamingText && (
               <div className="flex justify-start">
                 <div className="max-w-[80%] rounded-xl bg-content2 px-4 py-2.5 text-sm leading-relaxed">
-                  <div className="whitespace-pre-wrap">{streamingText}</div>
+                  <div className="ai-markdown">
+                    <Markdown>{streamingText}</Markdown>
+                  </div>
                   <span className="inline-block h-4 w-1 animate-pulse bg-primary" />
                 </div>
               </div>

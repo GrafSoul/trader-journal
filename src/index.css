@@ -25,3 +25,59 @@ html.light {
 body {
     @apply bg-background text-foreground antialiased;
 }
+
+/* AI Markdown styles */
+.ai-markdown p {
+    margin-bottom: 0.5em;
+}
+.ai-markdown p:last-child {
+    margin-bottom: 0;
+}
+.ai-markdown strong {
+    font-weight: 700;
+}
+.ai-markdown em {
+    font-style: italic;
+}
+.ai-markdown ul,
+.ai-markdown ol {
+    padding-left: 1.25em;
+    margin-bottom: 0.5em;
+}
+.ai-markdown ul {
+    list-style-type: disc;
+}
+.ai-markdown ol {
+    list-style-type: decimal;
+}
+.ai-markdown li {
+    margin-bottom: 0.2em;
+}
+.ai-markdown h1,
+.ai-markdown h2,
+.ai-markdown h3 {
+    font-weight: 700;
+    margin-top: 0.75em;
+    margin-bottom: 0.25em;
+}
+.ai-markdown h1 { font-size: 1.1em; }
+.ai-markdown h2 { font-size: 1.05em; }
+.ai-markdown h3 { font-size: 1em; }
+.ai-markdown code {
+    @apply rounded bg-content3 px-1 py-0.5 text-xs font-mono;
+}
+.ai-markdown pre {
+    @apply rounded-lg bg-content3 p-3 my-2 overflow-x-auto;
+}
+.ai-markdown pre code {
+    @apply bg-transparent p-0;
+}
+.ai-markdown blockquote {
+    @apply border-l-3 border-primary/40 pl-3 italic text-default-500 my-2;
+}
+.ai-markdown a {
+    @apply text-primary underline;
+}
+.ai-markdown hr {
+    @apply border-divider my-3;
+}

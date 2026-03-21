@@ -231,12 +231,15 @@ ipcMain.handle('fetch-rss', async (event, feedUrl) => {
     return fetchWithRedirects(feedUrl);
 });
 
-// ==================== AI DISCUSS ====================
+// ==================== AI DISCUSS (OpenRouter) ====================
+const AI_MODEL = 'google/gemini-2.5-flash';
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
 ipcMain.handle('ai-discuss', async (event, request) => {
-    const apiKey = process.env.ANTHROPIC_API_KEY ?? '';
+    const apiKey = process.env.OPENROUTER_API_KEY ?? '';
 
     if (!apiKey) {
-        return { ok: false, error: 'ANTHROPIC_API_KEY not configured' };
+        return { ok: false, error: 'OPENROUTER_API_KEY not configured. Add it to .env.local' };
     }
 
     const { context, messages, fetchArticle } = request;
@@ -294,45 +297,63 @@ ipcMain.handle('ai-discuss', async (event, request) => {
         }
     }
 
-    // Build system prompt
+    // Build system message
     const metaStr = context.meta
         ? Object.entries(context.meta).map(([k, v]) => `${k}: ${v}`).join('\n')
         : '';
 
-    const systemPrompt = `You are a financial analyst AI assistant in a Trader Journal app.
+    const systemMessage = `You are a senior financial analyst AI assistant in a Trader Journal desktop app.
 The user wants to discuss a ${context.type === 'calendar' ? 'economic calendar event' : 'financial news article'}.
 
-Context:
-- Title: ${context.title}
-- Source: ${context.source}
-- Description: ${context.description}
-${metaStr ? `- Details:\n${metaStr}` : ''}
-${articleText ? `\nFull article text:\n${articleText}` : ''}
+# Context
+- **Title:** ${context.title}
+- **Source:** ${context.source}
+- **Description:** ${context.description}
+${metaStr ? `- **Details:**\n${metaStr}` : ''}
+${articleText ? `\n# Full article text\n${articleText}` : ''}
 
-Instructions:
-- Respond in the same language the user writes in (Russian or English)
-- Be concise and professional
-- Focus on market impact, trading implications, and actionable insights
-- If the user asks about specific currency pairs or assets, provide relevant analysis
-- When article text is available, reference specific details from it`;
+# Response rules
+1. **Language:** Always respond in the same language the user writes in (Russian or English)
+2. **Formatting:** ALWAYS use rich Markdown formatting in your responses:
+   - Use **bold** for key terms, numbers, asset names, and important conclusions
+   - Use bullet lists and numbered lists for structured information
+   - Use headings (## or ###) to separate sections when the response is long
+   - Use \`code\` for ticker symbols, currency pairs (e.g. \`EUR/USD\`, \`S&P 500\`)
+   - Use > blockquotes for citing article text
+   - Use --- separators between logical sections
+3. **Content focus:**
+   - Lead with the key takeaway in **bold**
+   - Analyze market impact: which assets, sectors, currencies are affected
+   - Provide actionable trading implications
+   - When article text is available, reference and quote specific details
+   - Include relevant context: historical precedents, related events
+4. **Tone:** Professional, concise, data-driven. No fluff.`;
+
+    // OpenAI-compatible messages
+    const apiMessages = [
+        { role: 'system', content: systemMessage },
+        ...messages.map((m) => ({ role: m.role, content: m.content })),
+    ];
 
     try {
         const postData = JSON.stringify({
-            model: 'claude-haiku-4-20250414',
+            model: AI_MODEL,
+            messages: apiMessages,
             max_tokens: 2048,
-            system: systemPrompt,
-            messages: messages.map((m) => ({ role: m.role, content: m.content })),
+            temperature: 0.7,
         });
 
         const result = await new Promise((resolve) => {
+            const parsedUrl = new URL(OPENROUTER_URL);
             const req = https.request(
-                'https://api.anthropic.com/v1/messages',
                 {
+                    hostname: parsedUrl.hostname,
+                    path: parsedUrl.pathname,
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
+                        'Authorization': `Bearer ${apiKey}`,
+                        'X-Title': 'Trader Journal',
                         'Content-Length': Buffer.byteLength(postData),
                     },
                     timeout: 30000,
@@ -345,10 +366,10 @@ Instructions:
                         try {
                             const parsed = JSON.parse(data);
                             if (res.statusCode !== 200) {
-                                resolve({ ok: false, error: `Claude API ${res.statusCode}: ${parsed.error?.message ?? data}` });
+                                resolve({ ok: false, error: `OpenRouter ${res.statusCode}: ${parsed.error?.message ?? data}` });
                                 return;
                             }
-                            const text = parsed.content?.[0]?.text ?? '';
+                            const text = parsed.choices?.[0]?.message?.content ?? '';
                             resolve({ ok: true, data: text });
                         } catch {
                             resolve({ ok: false, error: `Failed to parse response: ${data.slice(0, 200)}` });
