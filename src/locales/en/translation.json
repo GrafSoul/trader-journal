@@ -360,6 +360,7 @@
         "empty": "No events found for the selected filters",
         "lastUpdated": "Updated: {{time}}",
         "startsIn": "Starts in {{value}}",
+        "liveNow": "Live Now",
         "upNext": "Up Next",
         "noUpcoming": "No upcoming events in the current range",
         "viewDetails": "View details",
@@ -382,6 +383,19 @@
             "live": "Live",
             "soon": "Soon",
             "upcoming": "Upcoming"
+        },
+        "relative": {
+            "lessThanMinute": "less than a minute",
+            "justNow": "just now",
+            "in": "in {{value}}",
+            "ago": "{{value}}m ago"
+        },
+        "notifications": {
+            "title": "Notifications",
+            "enable": "Notify before event",
+            "before": "Notify before",
+            "minutes": "{{value}} min",
+            "importantOnly": "Important events only"
         },
         "impactLabel": {
             "High": "High",

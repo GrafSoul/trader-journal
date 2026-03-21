@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -45,6 +45,7 @@ const LIVE_WINDOW_AFTER_MS = 10 * 60 * 1000;
 const SOON_WINDOW_MS = 60 * 60 * 1000;
 const REFRESH_DEFAULT_MS = 15 * 60 * 1000;
 const REFRESH_NEAR_EVENT_MS = 2 * 60 * 1000;
+const NOTIFICATION_OPTIONS = [5, 15, 30, 60];
 
 type CalendarStoredPrefs = {
   range?: CalendarRangeKey;
@@ -55,6 +56,9 @@ type CalendarStoredPrefs = {
   showPast?: boolean;
   showFilters?: boolean;
   trackedIds?: string[];
+  notificationsEnabled?: boolean;
+  notificationMinutes?: number;
+  notificationsImportantOnly?: boolean;
 };
 
 function startOfDay(date: Date) {
@@ -170,6 +174,33 @@ function formatCountdown(targetIso: string, nowTimestamp: number) {
   return `${minutes.toString().padStart(2, "0")}m`;
 }
 
+function formatRelativeEventTimeKey(targetIso: string, nowTimestamp: number) {
+  const diff = new Date(targetIso).getTime() - nowTimestamp;
+  const absMinutes = Math.floor(Math.abs(diff) / 60_000);
+
+  if (diff > SOON_WINDOW_MS) {
+    return null;
+  }
+
+  if (diff > 0) {
+    if (absMinutes < 1) return { key: "calendar.relative.lessThanMinute" };
+    return {
+      key: "calendar.relative.in",
+      value: formatCountdown(targetIso, nowTimestamp),
+    };
+  }
+
+  if (diff >= -LIVE_WINDOW_AFTER_MS) {
+    if (absMinutes < 1) return { key: "calendar.relative.justNow" };
+    return {
+      key: "calendar.relative.ago",
+      value: absMinutes,
+    };
+  }
+
+  return null;
+}
+
 const CalendarPage = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -189,6 +220,10 @@ const CalendarPage = () => {
   const [trackedIds, setTrackedIds] = useState<string[]>([]);
   const [nowTimestamp, setNowTimestamp] = useState(() => Date.now());
   const [prefsHydrated, setPrefsHydrated] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationMinutes, setNotificationMinutes] = useState(15);
+  const [notificationsImportantOnly, setNotificationsImportantOnly] = useState(true);
+  const notifiedEventsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -206,6 +241,15 @@ const CalendarPage = () => {
       if (typeof parsed.showPast === "boolean") setShowPast(parsed.showPast);
       if (typeof parsed.showFilters === "boolean") setShowFilters(parsed.showFilters);
       if (parsed.trackedIds) setTrackedIds(parsed.trackedIds);
+      if (typeof parsed.notificationsEnabled === "boolean") {
+        setNotificationsEnabled(parsed.notificationsEnabled);
+      }
+      if (typeof parsed.notificationMinutes === "number") {
+        setNotificationMinutes(parsed.notificationMinutes);
+      }
+      if (typeof parsed.notificationsImportantOnly === "boolean") {
+        setNotificationsImportantOnly(parsed.notificationsImportantOnly);
+      }
     } catch {
       // ignore invalid saved state
     } finally {
@@ -226,9 +270,25 @@ const CalendarPage = () => {
         showPast,
         showFilters,
         trackedIds,
+        notificationsEnabled,
+        notificationMinutes,
+        notificationsImportantOnly,
       } satisfies CalendarStoredPrefs)
     );
-  }, [prefsHydrated, range, search, timezone, currencies, impacts, showPast, showFilters, trackedIds]);
+  }, [
+    prefsHydrated,
+    range,
+    search,
+    timezone,
+    currencies,
+    impacts,
+    showPast,
+    showFilters,
+    trackedIds,
+    notificationsEnabled,
+    notificationMinutes,
+    notificationsImportantOnly,
+  ]);
 
   useEffect(() => {
     if (status === Statuses.IDLE) {
@@ -292,6 +352,45 @@ const CalendarPage = () => {
     };
   }, [dispatch]);
 
+  useEffect(() => {
+    if (!notificationsEnabled) return;
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+    if (Notification.permission !== "granted") return;
+
+    items.forEach((event) => {
+      const eventTime = new Date(event.timestamp).getTime();
+      const diff = eventTime - nowTimestamp;
+      const notifyWindowStart = notificationMinutes * 60 * 1000;
+      const shouldNotify =
+        diff <= notifyWindowStart &&
+        diff > Math.max(notifyWindowStart - 60_000, 0) &&
+        (!notificationsImportantOnly || event.impact === "High");
+
+      if (!shouldNotify) return;
+
+      const notificationKey = `${event.id}-${notificationMinutes}`;
+      if (notifiedEventsRef.current.has(notificationKey)) return;
+
+      const body = `${event.currency} · ${t("calendar.startsIn", {
+        value: formatCountdown(event.timestamp, nowTimestamp),
+      })}`;
+
+      new Notification(event.title, {
+        body,
+        tag: notificationKey,
+      });
+
+      notifiedEventsRef.current.add(notificationKey);
+    });
+  }, [
+    items,
+    nowTimestamp,
+    notificationMinutes,
+    notificationsEnabled,
+    notificationsImportantOnly,
+    t,
+  ]);
+
   const availableCurrencies = useMemo(
     () => Array.from(new Set(items.map((item) => item.currency))).sort(),
     [items]
@@ -333,6 +432,14 @@ const CalendarPage = () => {
     return Array.from(groups.entries());
   }, [filteredItems, timezone]);
 
+  const liveNowItems = useMemo(
+    () =>
+      filteredItems
+        .filter((event) => getEventStatus(event, new Date(nowTimestamp)) === "live")
+        .slice(0, 5),
+    [filteredItems, nowTimestamp]
+  );
+
   const toggleTracked = (id: string) => {
     setTrackedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
@@ -352,6 +459,28 @@ const CalendarPage = () => {
     setShowPast(true);
     setTimezone(browserTimezone);
     setShowFilters(false);
+    setNotificationsEnabled(false);
+    setNotificationMinutes(15);
+    setNotificationsImportantOnly(true);
+  };
+
+  const handleNotificationToggle = async (enabled: boolean) => {
+    if (!enabled) {
+      setNotificationsEnabled(false);
+      return;
+    }
+
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      return;
+    }
+
+    if (Notification.permission === "granted") {
+      setNotificationsEnabled(true);
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    setNotificationsEnabled(permission === "granted");
   };
 
   return (
@@ -367,11 +496,11 @@ const CalendarPage = () => {
 
         <div className="flex flex-wrap items-center gap-2">
           {lastFetchedAt && (
-            <span className="text-xs text-default-400">
+            <div className="rounded-full border border-success-200 bg-success-50 px-3 py-1 text-xs font-medium text-success-700">
               {t("calendar.lastUpdated", {
                 time: formatInTimeZone(lastFetchedAt, timezone, "datetime"),
               })}
-            </span>
+            </div>
           )}
           <Button
             size="sm"
@@ -468,6 +597,39 @@ const CalendarPage = () => {
                   {t("common.reset")}
                 </Button>
               </div>
+
+              <div className="rounded-xl bg-default-50 p-4 lg:col-span-4">
+                <div className="mb-3 text-sm font-semibold">
+                  {t("calendar.notifications.title")}
+                </div>
+                <div className="grid gap-3 lg:grid-cols-3">
+                  <Switch
+                    isSelected={notificationsEnabled}
+                    onValueChange={(value) => void handleNotificationToggle(value)}>
+                    {t("calendar.notifications.enable")}
+                  </Switch>
+
+                  <Select
+                    label={t("calendar.notifications.before")}
+                    selectedKeys={[String(notificationMinutes)]}
+                    onSelectionChange={(keys) => {
+                      const selected = Array.from(keys)[0];
+                      if (selected) setNotificationMinutes(Number(selected));
+                    }}>
+                    {NOTIFICATION_OPTIONS.map((value) => (
+                      <SelectItem key={String(value)}>
+                        {t("calendar.notifications.minutes", { value })}
+                      </SelectItem>
+                    ))}
+                  </Select>
+
+                  <Switch
+                    isSelected={notificationsImportantOnly}
+                    onValueChange={setNotificationsImportantOnly}>
+                    {t("calendar.notifications.importantOnly")}
+                  </Switch>
+                </div>
+              </div>
             </div>
           )}
 
@@ -486,6 +648,36 @@ const CalendarPage = () => {
           {status !== Statuses.LOADING && filteredItems.length === 0 && (
             <div className="rounded-xl border border-dashed border-default-300 p-8 text-center text-default-500">
               {t("calendar.empty")}
+            </div>
+          )}
+
+          {liveNowItems.length > 0 && (
+            <div className="rounded-xl border border-danger-200 bg-danger-50 p-4">
+              <div className="mb-3 flex items-center gap-2">
+                <Clock3 size={18} className="text-danger" />
+                <h2 className="font-semibold text-danger">
+                  {t("calendar.liveNow")}
+                </h2>
+              </div>
+              <div className="grid gap-3">
+                {liveNowItems.map((event) => (
+                  <button
+                    key={event.id}
+                    type="button"
+                    className="flex items-center justify-between gap-3 rounded-lg bg-white/80 px-4 py-3 text-left hover:bg-white"
+                    onClick={() => setSelectedEvent(event)}>
+                    <div>
+                      <div className="font-semibold">{event.title}</div>
+                      <div className="text-sm text-default-500">
+                        {event.currency} · {t(`calendar.impactLabel.${event.impact}`)}
+                      </div>
+                    </div>
+                    <Chip color="danger" variant="flat">
+                      {t("calendar.status.live")}
+                    </Chip>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -521,8 +713,14 @@ const CalendarPage = () => {
                       return (
                         <tr
                           key={event.id}
-                          className={`border-b border-default-100 align-top ${
-                            statusKey === "past" ? "opacity-60" : ""
+                          className={`border-b border-default-100 align-top transition-colors ${
+                            statusKey === "past"
+                              ? "opacity-60"
+                              : statusKey === "live"
+                                ? "bg-danger-50"
+                                : statusKey === "soon"
+                                  ? "bg-warning-50"
+                                  : ""
                           }`}>
                           <td className="whitespace-nowrap px-4 py-3">
                             {event.isAllDay
@@ -537,9 +735,33 @@ const CalendarPage = () => {
                             </Chip>
                           </td>
                           <td className="whitespace-nowrap px-4 py-3">
-                            {statusKey === "past"
-                              ? "—"
-                              : formatCountdown(event.timestamp, nowTimestamp)}
+                            <div className="flex flex-col">
+                              <span
+                                className={`text-base font-semibold ${
+                                  statusKey === "live"
+                                    ? "text-danger"
+                                    : statusKey === "soon"
+                                      ? "text-warning-700"
+                                      : "text-primary"
+                                }`}>
+                                {statusKey === "past"
+                                  ? "—"
+                                  : formatCountdown(event.timestamp, nowTimestamp)}
+                              </span>
+                              {(() => {
+                                const relative = formatRelativeEventTimeKey(
+                                  event.timestamp,
+                                  nowTimestamp
+                                );
+                                if (!relative) return null;
+
+                                return (
+                                  <span className="text-xs text-default-400">
+                                    {t(relative.key, "value" in relative ? { value: relative.value } : undefined)}
+                                  </span>
+                                );
+                              })()}
+                            </div>
                           </td>
                           <td className="px-4 py-3">
                             <span className="font-semibold">{event.currency}</span>

@@ -360,6 +360,7 @@
         "empty": "По выбранным фильтрам событий нет",
         "lastUpdated": "Обновлено: {{time}}",
         "startsIn": "До события {{value}}",
+        "liveNow": "Выходит сейчас",
         "upNext": "Далее",
         "noUpcoming": "В текущем диапазоне нет будущих событий",
         "viewDetails": "Открыть детали",
@@ -382,6 +383,19 @@
             "live": "Сейчас",
             "soon": "Скоро",
             "upcoming": "Будет"
+        },
+        "relative": {
+            "lessThanMinute": "меньше минуты",
+            "justNow": "только что",
+            "in": "через {{value}}",
+            "ago": "{{value}} мин назад"
+        },
+        "notifications": {
+            "title": "Уведомления",
+            "enable": "Напоминать перед событием",
+            "before": "Напомнить за",
+            "minutes": "{{value}} мин",
+            "importantOnly": "Только важные события"
         },
         "impactLabel": {
             "High": "Высокое",
