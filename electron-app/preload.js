@@ -12,4 +12,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // News
     fetchRss: (url) => ipcRenderer.invoke('fetch-rss', url),
     openExternal: (url) => ipcRenderer.invoke('open-external', url),
+    // AI
+    aiDiscuss: (request) => ipcRenderer.invoke('ai-discuss', request),
 });

@@ -4,6 +4,28 @@ const fs = require('fs');
 const https = require('https');
 const http = require('http');
 
+// ==================== LOAD .env.local ====================
+function loadEnvFile() {
+    const envPath = path.join(__dirname, '..', '.env.local');
+    try {
+        const content = fs.readFileSync(envPath, 'utf8');
+        for (const line of content.split('\n')) {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith('#')) continue;
+            const eqIdx = trimmed.indexOf('=');
+            if (eqIdx === -1) continue;
+            const key = trimmed.slice(0, eqIdx).trim();
+            const value = trimmed.slice(eqIdx + 1).trim();
+            if (!process.env[key]) {
+                process.env[key] = value;
+            }
+        }
+    } catch {
+        // .env.local not found — skip
+    }
+}
+loadEnvFile();
+
 let mainWindow;
 let isAlwaysOnTop = false;
 let isMaximized = false;
@@ -207,6 +229,144 @@ ipcMain.handle('fetch-rss', async (event, feedUrl) => {
     };
 
     return fetchWithRedirects(feedUrl);
+});
+
+// ==================== AI DISCUSS ====================
+ipcMain.handle('ai-discuss', async (event, request) => {
+    const apiKey = process.env.ANTHROPIC_API_KEY ?? '';
+
+    if (!apiKey) {
+        return { ok: false, error: 'ANTHROPIC_API_KEY not configured' };
+    }
+
+    const { context, messages, fetchArticle } = request;
+
+    // Optionally fetch article content
+    let articleText = '';
+    if (fetchArticle && context.url) {
+        try {
+            const fetchUrl = new URL(context.url);
+            const lib = fetchUrl.protocol === 'https:' ? https : http;
+
+            articleText = await new Promise((resolve) => {
+                const req = lib.get(
+                    context.url,
+                    {
+                        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TraderJournal/1.0)' },
+                        timeout: 10000,
+                    },
+                    (res) => {
+                        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                            const redirectUrl = new URL(res.headers.location, context.url).href;
+                            const redirectLib = redirectUrl.startsWith('https:') ? https : http;
+                            redirectLib.get(redirectUrl, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 10000 }, (rRes) => {
+                                let data = '';
+                                rRes.setEncoding('utf8');
+                                rRes.on('data', (chunk) => { data += chunk; });
+                                rRes.on('end', () => resolve(data));
+                                rRes.on('error', () => resolve(''));
+                            }).on('error', () => resolve(''));
+                            res.resume();
+                            return;
+                        }
+                        let data = '';
+                        res.setEncoding('utf8');
+                        res.on('data', (chunk) => { data += chunk; });
+                        res.on('end', () => resolve(data));
+                        res.on('error', () => resolve(''));
+                    }
+                );
+                req.on('error', () => resolve(''));
+                req.on('timeout', () => { req.destroy(); resolve(''); });
+            });
+
+            if (articleText) {
+                articleText = articleText
+                    .replace(/<script[\s\S]*?<\/script>/gi, '')
+                    .replace(/<style[\s\S]*?<\/style>/gi, '')
+                    .replace(/<[^>]+>/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .slice(0, 8000);
+            }
+        } catch {
+            // continue without article
+        }
+    }
+
+    // Build system prompt
+    const metaStr = context.meta
+        ? Object.entries(context.meta).map(([k, v]) => `${k}: ${v}`).join('\n')
+        : '';
+
+    const systemPrompt = `You are a financial analyst AI assistant in a Trader Journal app.
+The user wants to discuss a ${context.type === 'calendar' ? 'economic calendar event' : 'financial news article'}.
+
+Context:
+- Title: ${context.title}
+- Source: ${context.source}
+- Description: ${context.description}
+${metaStr ? `- Details:\n${metaStr}` : ''}
+${articleText ? `\nFull article text:\n${articleText}` : ''}
+
+Instructions:
+- Respond in the same language the user writes in (Russian or English)
+- Be concise and professional
+- Focus on market impact, trading implications, and actionable insights
+- If the user asks about specific currency pairs or assets, provide relevant analysis
+- When article text is available, reference specific details from it`;
+
+    try {
+        const postData = JSON.stringify({
+            model: 'claude-haiku-4-20250414',
+            max_tokens: 2048,
+            system: systemPrompt,
+            messages: messages.map((m) => ({ role: m.role, content: m.content })),
+        });
+
+        const result = await new Promise((resolve) => {
+            const req = https.request(
+                'https://api.anthropic.com/v1/messages',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'Content-Length': Buffer.byteLength(postData),
+                    },
+                    timeout: 30000,
+                },
+                (res) => {
+                    let data = '';
+                    res.setEncoding('utf8');
+                    res.on('data', (chunk) => { data += chunk; });
+                    res.on('end', () => {
+                        try {
+                            const parsed = JSON.parse(data);
+                            if (res.statusCode !== 200) {
+                                resolve({ ok: false, error: `Claude API ${res.statusCode}: ${parsed.error?.message ?? data}` });
+                                return;
+                            }
+                            const text = parsed.content?.[0]?.text ?? '';
+                            resolve({ ok: true, data: text });
+                        } catch {
+                            resolve({ ok: false, error: `Failed to parse response: ${data.slice(0, 200)}` });
+                        }
+                    });
+                    res.on('error', (err) => resolve({ ok: false, error: err.message }));
+                }
+            );
+            req.on('error', (err) => resolve({ ok: false, error: err.message }));
+            req.on('timeout', () => { req.destroy(); resolve({ ok: false, error: 'Request timed out' }); });
+            req.write(postData);
+            req.end();
+        });
+
+        return result;
+    } catch (err) {
+        return { ok: false, error: err.message ?? 'AI request failed' };
+    }
 });
 
 // ==================== OPEN EXTERNAL URL ====================

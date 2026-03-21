@@ -441,5 +441,21 @@
         "totalInDb": "Сделок в базе",
         "importResult": "Импортировано {{imported}}, пропущено {{skipped}} дубл. Всего в базе: {{total}}",
         "allDeletedResult": "Все сделки удалены из базы"
+    },
+    "ai": {
+        "discuss": "Обсудить с AI",
+        "discussTitle": "AI Анализ",
+        "newsContext": "Новостная статья",
+        "calendarContext": "Событие календаря",
+        "emptyHint": "Задайте вопрос по этой статье или событию",
+        "quickTranslate": "Переведи на русский",
+        "quickImpact": "Влияние на рынок?",
+        "quickSummary": "Краткое резюме",
+        "inputPlaceholder": "Задайте вопрос...",
+        "send": "Отправить",
+        "thinking": "Думаю...",
+        "clearChat": "Очистить чат",
+        "articleLoaded": "Статья загружена",
+        "articleWillLoad": "Статья загрузится с первым сообщением"
     }
 }

@@ -14,6 +14,7 @@ import {
   Switch,
 } from "@heroui/react";
 import {
+  Bot,
   CalendarDays,
   Clock3,
   ExternalLink,
@@ -24,7 +25,9 @@ import {
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchCalendarEvents } from "@/services/calendarService";
 import { Statuses } from "@/store/statuses/statuses";
+import { AiDiscussModal } from "@/components/ai/AiDiscussModal";
 import type { CalendarEvent, CalendarImpact, CalendarRangeKey } from "@/types/calendar";
+import type { AiDiscussContext } from "@/types/ai";
 
 const PERIODS: CalendarRangeKey[] = ["today", "tomorrow", "thisWeek", "nextWeek"];
 const IMPACTS: CalendarImpact[] = ["High", "Medium", "Low", "Holiday", "Unknown"];
@@ -226,6 +229,7 @@ const CalendarPage = () => {
   const [timezone, setTimezone] = useState(browserTimezone);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [aiContext, setAiContext] = useState<AiDiscussContext | null>(null);
   const [trackedIds, setTrackedIds] = useState<string[]>([]);
   const [nowTimestamp, setNowTimestamp] = useState(() => Date.now());
   const [prefsHydrated, setPrefsHydrated] = useState(false);
@@ -937,24 +941,57 @@ const CalendarPage = () => {
                     </div>
                   </div>
 
-                  {isSafeUrl(selectedEvent.url) && (
+                  <div className="flex gap-2">
                     <Button
-                      as="a"
-                      href={selectedEvent.url}
-                      target="_blank"
-                      rel="noreferrer"
                       variant="flat"
-                      color="primary"
-                      startContent={<ExternalLink size={14} />}>
-                      {t("calendar.openSource")}
+                      color="secondary"
+                      startContent={<Bot size={14} />}
+                      onPress={() => {
+                        setAiContext({
+                          title: selectedEvent.title,
+                          description: `${selectedEvent.currency} - ${selectedEvent.impact} impact`,
+                          source: "Forex Factory",
+                          url: selectedEvent.url ?? null,
+                          type: "calendar",
+                          meta: {
+                            currency: selectedEvent.currency,
+                            impact: selectedEvent.impact,
+                            ...(selectedEvent.actual && { actual: selectedEvent.actual }),
+                            ...(selectedEvent.forecast && { forecast: selectedEvent.forecast }),
+                            ...(selectedEvent.previous && { previous: selectedEvent.previous }),
+                          },
+                        });
+                        setSelectedEvent(null);
+                      }}>
+                      {t("ai.discuss")}
                     </Button>
-                  )}
+                    {isSafeUrl(selectedEvent.url) && (
+                      <Button
+                        as="a"
+                        href={selectedEvent.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        variant="flat"
+                        color="primary"
+                        startContent={<ExternalLink size={14} />}>
+                        {t("calendar.openSource")}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </ModalBody>
             </>
           )}
         </ModalContent>
       </Modal>
+      {/* AI Discuss Modal */}
+      {aiContext && (
+        <AiDiscussModal
+          isOpen={!!aiContext}
+          onClose={() => setAiContext(null)}
+          context={aiContext}
+        />
+      )}
     </div>
   );
 };

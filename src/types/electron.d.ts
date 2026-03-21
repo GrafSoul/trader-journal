@@ -24,6 +24,8 @@ export interface ElectronAPI {
   // News
   fetchRss: (url: string) => Promise<FetchRssResult>;
   openExternal: (url: string) => Promise<void>;
+  // AI
+  aiDiscuss: (request: import("./ai").AiDiscussRequest) => Promise<FetchRssResult>;
 }
 
 declare global {

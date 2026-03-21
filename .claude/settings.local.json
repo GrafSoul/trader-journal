@@ -88,7 +88,9 @@
       "Bash(pkill -f \"trader-journal/electron-app\")",
       "Bash(pkill -f \"npx.*electron\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(grep -r \"Modal\\\\|Dialog\\\\|Sheet\\\\|Popover\" /Volumes/PROJECTS/PROJECTS/SAAS/trader-journal/src/components/ --include=*.tsx --include=*.ts -l)",
+      "Bash(cat /Volumes/PROJECTS/PROJECTS/SAAS/trader-journal/supabase/migrations/20240105*.sql)"
     ]
   }
 }

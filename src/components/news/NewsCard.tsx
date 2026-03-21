@@ -1,11 +1,13 @@
-import { Card, CardBody, CardFooter } from "@heroui/react";
-import { ExternalLink, Clock } from "lucide-react";
+import { Button, Card, CardBody, CardFooter } from "@heroui/react";
+import { Bot, ExternalLink, Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { NewsItem } from "@/types/news";
+import type { AiDiscussContext } from "@/types/ai";
 
 // ==================== PROPS ====================
 interface NewsCardProps {
   item: NewsItem;
+  onDiscuss?: (context: AiDiscussContext) => void;
 }
 
 // ==================== TIME AGO HELPER ====================
@@ -43,69 +45,98 @@ function openLink(url: string): void {
 }
 
 // ==================== COMPONENT ====================
-export const NewsCard = ({ item }: NewsCardProps) => {
-  const { i18n } = useTranslation();
+export const NewsCard = ({ item, onDiscuss }: NewsCardProps) => {
+  const { t, i18n } = useTranslation();
   const locale = i18n.language ?? "en";
 
   const timeAgo = formatTimeAgo(item.pubDate, locale);
 
   return (
     <Card
-      isPressable
-      onPress={() => openLink(item.link)}
       className="w-full text-left transition-all hover:shadow-md"
       aria-label={item.title}>
-      {/* Image */}
-      {item.imageUrl && (
-        <div className="relative h-40 w-full overflow-hidden rounded-t-xl">
-          <img
-            src={item.imageUrl}
-            alt=""
-            aria-hidden="true"
-            className="h-full w-full object-cover"
-            onError={(e) => {
-              const target = e.currentTarget;
-              target.parentElement?.classList.add("hidden");
-            }}
-          />
-        </div>
-      )}
-
-      <CardBody className="gap-2 pb-2">
-        {/* Source + Time row */}
-        <div className="flex items-center justify-between gap-2">
-          <span className="truncate text-xs font-medium text-primary">
-            {item.source}
-          </span>
-          <div className="flex shrink-0 items-center gap-1 text-xs text-default-400">
-            <Clock size={12} />
-            <span>{timeAgo}</span>
+      {/* Clickable area for opening article — uses <a> not <button> */}
+      <a
+        href={item.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => {
+          if (window.electronAPI?.openExternal) {
+            e.preventDefault();
+            openLink(item.link);
+          }
+        }}
+        className="cursor-pointer">
+        {/* Image */}
+        {item.imageUrl && (
+          <div className="relative h-40 w-full overflow-hidden rounded-t-xl">
+            <img
+              src={item.imageUrl}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.parentElement?.classList.add("hidden");
+              }}
+            />
           </div>
-        </div>
-
-        {/* Title */}
-        <h3 className="line-clamp-2 text-sm font-semibold leading-snug">
-          {item.title}
-        </h3>
-
-        {/* Description */}
-        {item.description && (
-          <p className="line-clamp-3 text-xs text-default-500 leading-relaxed">
-            {item.description}
-          </p>
         )}
-      </CardBody>
 
-      {/* External link icon */}
-      {item.link && (
-        <CardFooter className="flex items-center justify-end pt-0">
+        <CardBody className="gap-2 pb-2">
+          {/* Source + Time row */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="truncate text-xs font-medium text-primary">
+              {item.source}
+            </span>
+            <div className="flex shrink-0 items-center gap-1 text-xs text-default-400">
+              <Clock size={12} />
+              <span>{timeAgo}</span>
+            </div>
+          </div>
+
+          {/* Title */}
+          <h3 className="line-clamp-2 text-sm font-semibold leading-snug">
+            {item.title}
+          </h3>
+
+          {/* Description */}
+          {item.description && (
+            <p className="line-clamp-3 text-xs text-default-500 leading-relaxed">
+              {item.description}
+            </p>
+          )}
+        </CardBody>
+      </a>
+
+      {/* Footer: AI discuss + external link — outside clickable <a> */}
+      <CardFooter className="flex items-center justify-between gap-2 pt-0">
+        {onDiscuss && (
+          <Button
+            size="sm"
+            variant="flat"
+            startContent={<Bot size={14} />}
+            onPress={() =>
+              onDiscuss({
+                title: item.title,
+                description: item.description,
+                source: item.source,
+                url: item.link,
+                type: "news",
+              })
+            }
+            className="text-xs">
+            {t("ai.discuss")}
+          </Button>
+        )}
+        {item.link && (
           <ExternalLink
             size={14}
             className="shrink-0 text-default-400"
             aria-hidden="true"
           />
-        </CardFooter>
-      )}
+        )}
+      </CardFooter>
     </Card>
   );
 };

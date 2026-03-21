@@ -35,7 +35,9 @@ import { fetchFeeds, addFeed, deleteFeed, updateFeed } from "@/services/feedServ
 import { Statuses } from "@/store/statuses/statuses";
 import { NewsCard } from "@/components/news/NewsCard";
 import { NewsFilters } from "@/components/news/NewsFilters";
+import { AiDiscussModal } from "@/components/ai/AiDiscussModal";
 import type { NewsItem, NewsFeed } from "@/types/news";
+import type { AiDiscussContext } from "@/types/ai";
 
 // ==================== PAGE SIZE OPTIONS ====================
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
@@ -121,6 +123,7 @@ const NewsPage = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [aiContext, setAiContext] = useState<AiDiscussContext | null>(null);
 
   // Add/Edit feed modal
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -479,7 +482,7 @@ const NewsPage = () => {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {displayedItems.map((item) => (
-                <NewsCard key={item.id} item={item} />
+                <NewsCard key={item.id} item={item} onDiscuss={setAiContext} />
               ))}
             </div>
 
@@ -534,6 +537,15 @@ const NewsPage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* AI Discuss Modal */}
+      {aiContext && (
+        <AiDiscussModal
+          isOpen={!!aiContext}
+          onClose={() => setAiContext(null)}
+          context={aiContext}
+        />
+      )}
     </div>
   );
 };

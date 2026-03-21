@@ -441,5 +441,21 @@
         "totalInDb": "Trades in database",
         "importResult": "Imported {{imported}}, skipped {{skipped}} dupl. Total in DB: {{total}}",
         "allDeletedResult": "All trades deleted from database"
+    },
+    "ai": {
+        "discuss": "Discuss with AI",
+        "discussTitle": "AI Analysis",
+        "newsContext": "News article",
+        "calendarContext": "Calendar event",
+        "emptyHint": "Ask a question about this article or event",
+        "quickTranslate": "Translate to Russian",
+        "quickImpact": "Market impact?",
+        "quickSummary": "Brief summary",
+        "inputPlaceholder": "Ask a question...",
+        "send": "Send",
+        "thinking": "Thinking...",
+        "clearChat": "Clear chat",
+        "articleLoaded": "Article loaded",
+        "articleWillLoad": "Article will be loaded with first message"
     }
 }
