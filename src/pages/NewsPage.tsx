@@ -256,7 +256,7 @@ const NewsPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex min-w-0 flex-col">
       {/* Header — fixed */}
       <div className="shrink-0 mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -410,8 +410,8 @@ const NewsPage = () => {
         <NewsFilters />
       </div>
 
-      {/* Scrollable content area — ONLY this scrolls */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      {/* Content area */}
+      <div className="min-w-0">
         {/* Loading state (initial) */}
         {(isLoading || isFeedsLoading) && items.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 gap-3">

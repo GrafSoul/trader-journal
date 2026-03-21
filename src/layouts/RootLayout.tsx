@@ -38,5 +38,9 @@ export const RootLayout = () => {
     };
   }, [dispatch, navigate]);
 
-  return <Outlet />;
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <Outlet />
+    </div>
+  );
 };

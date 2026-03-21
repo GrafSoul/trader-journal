@@ -6,7 +6,7 @@ const NotFoundPage = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+    <div className="flex h-full min-h-0 flex-col items-center justify-center gap-4">
       <h1 className="text-6xl font-bold">404</h1>
       <p className="text-xl text-default-500">{t("common.notFound")}</p>
       <Button as={Link} to="/" color="primary">

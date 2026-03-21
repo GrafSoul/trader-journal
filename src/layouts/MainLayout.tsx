@@ -115,9 +115,9 @@ export const MainLayout = () => {
   );
 
   return (
-    <div className="flex h-full overflow-hidden">
-      {/* Desktop Sidebar — fixed, never scrolls */}
-      <aside className="hidden w-64 h-full shrink-0 overflow-hidden border-r border-divider bg-content1 lg:flex lg:flex-col">
+    <div className="relative h-full min-h-0 overflow-hidden bg-background">
+      {/* Desktop Sidebar — fixed rail */}
+      <aside className="hidden lg:absolute lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:w-64 lg:flex-col lg:overflow-hidden lg:border-r lg:border-divider lg:bg-content1">
         {sidebarContent}
       </aside>
 
@@ -137,9 +137,9 @@ export const MainLayout = () => {
         </div>
       )}
 
-      {/* Main content */}
-      <main className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
-        {/* Header — fixed, never scrolls */}
+      {/* Main column */}
+      <main className="absolute inset-0 flex min-h-0 min-w-0 flex-col overflow-hidden lg:left-64">
+        {/* Header — fixed */}
         <header className="shrink-0 z-40 border-b border-divider bg-background/80 backdrop-blur-md">
           <div className="flex h-16 items-center justify-between gap-4 px-4">
             {/* Left: hamburger menu (mobile) */}
@@ -179,9 +179,11 @@ export const MainLayout = () => {
           </div>
         </header>
 
-        {/* Page content — only this area scrolls */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
-          <Outlet />
+        {/* Only this area owns page scroll */}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-[1600px] p-4 lg:p-6">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>
