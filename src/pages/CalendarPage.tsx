@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -27,7 +27,7 @@ import { Statuses } from "@/store/statuses/statuses";
 import type { CalendarEvent, CalendarImpact, CalendarRangeKey } from "@/types/calendar";
 
 const PERIODS: CalendarRangeKey[] = ["today", "tomorrow", "thisWeek", "nextWeek"];
-const IMPACTS: CalendarImpact[] = ["High", "Medium", "Low", "Holiday"];
+const IMPACTS: CalendarImpact[] = ["High", "Medium", "Low", "Holiday", "Unknown"];
 const TIMEZONE_OPTIONS = [
   "UTC",
   "Europe/London",
@@ -38,14 +38,22 @@ const TIMEZONE_OPTIONS = [
 ];
 const STORAGE_KEY = "trader-journal-calendar-prefs";
 const DEFAULT_RANGE: CalendarRangeKey = "today";
-const DEFAULT_IMPACTS: CalendarImpact[] = ["High", "Medium", "Low", "Holiday"];
+const DEFAULT_IMPACTS: CalendarImpact[] = ["High", "Medium", "Low", "Holiday", "Unknown"];
 const DEFAULT_TICK_MS = 30_000;
 const LIVE_WINDOW_BEFORE_MS = 5 * 60 * 1000;
 const LIVE_WINDOW_AFTER_MS = 10 * 60 * 1000;
 const SOON_WINDOW_MS = 60 * 60 * 1000;
-const REFRESH_DEFAULT_MS = 15 * 60 * 1000;
-const REFRESH_NEAR_EVENT_MS = 2 * 60 * 1000;
 const NOTIFICATION_OPTIONS = [5, 15, 30, 60];
+
+function isSafeUrl(url: string | null | undefined): url is string {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
 
 type CalendarStoredPrefs = {
   range?: CalendarRangeKey;
@@ -130,7 +138,8 @@ function formatInTimeZone(
 function getEventStatus(event: CalendarEvent, now: Date) {
   const diff = new Date(event.timestamp).getTime() - now.getTime();
   if (diff < -LIVE_WINDOW_AFTER_MS) return "past";
-  if (diff <= LIVE_WINDOW_AFTER_MS && diff >= -LIVE_WINDOW_BEFORE_MS) return "live";
+  if (diff <= 0) return "live"; // event started, within LIVE_WINDOW_AFTER_MS
+  if (diff <= LIVE_WINDOW_BEFORE_MS) return "live"; // about to start within 5 min
   if (diff <= SOON_WINDOW_MS) return "soon";
   return "upcoming";
 }
@@ -291,7 +300,7 @@ const CalendarPage = () => {
   ]);
 
   useEffect(() => {
-    if (status === Statuses.IDLE) {
+    if (status === Statuses.IDLE || status === Statuses.FAILED) {
       void dispatch(fetchCalendarEvents());
     }
   }, [dispatch, status]);
@@ -304,53 +313,43 @@ const CalendarPage = () => {
   );
   const bounds = getRangeBounds(range, now);
 
-  useEffect(() => {
-    const nextDiff = nextUp
-      ? new Date(nextUp.timestamp).getTime() - nowTimestamp
-      : Number.POSITIVE_INFINITY;
-    const tickMs = nextDiff <= SOON_WINDOW_MS ? 5_000 : DEFAULT_TICK_MS;
+  // Tick timer — uses ref to avoid re-creating interval on every tick
+  const nextUpRef = useRef(nextUp);
+  nextUpRef.current = nextUp;
 
-    const intervalId = window.setInterval(() => {
+  useEffect(() => {
+    const getTickMs = () => {
+      const nUp = nextUpRef.current;
+      if (!nUp) return DEFAULT_TICK_MS;
+      const diff = new Date(nUp.timestamp).getTime() - Date.now();
+      return diff <= SOON_WINDOW_MS ? 5_000 : DEFAULT_TICK_MS;
+    };
+
+    let intervalId = window.setInterval(() => {
       setNowTimestamp(Date.now());
-    }, tickMs);
+
+      // Re-evaluate tick speed
+      const newMs = getTickMs();
+      window.clearInterval(intervalId);
+      intervalId = window.setInterval(() => {
+        setNowTimestamp(Date.now());
+      }, newMs);
+    }, getTickMs());
 
     return () => window.clearInterval(intervalId);
-  }, [nextUp, nowTimestamp]);
+  }, []); // stable — no deps, uses ref
 
-  useEffect(() => {
-    const nextDiff = nextUp
-      ? new Date(nextUp.timestamp).getTime() - nowTimestamp
-      : Number.POSITIVE_INFINITY;
-    const refreshMs = nextDiff <= SOON_WINDOW_MS ? REFRESH_NEAR_EVENT_MS : REFRESH_DEFAULT_MS;
-
-    const intervalId = window.setInterval(() => {
-      void dispatch(fetchCalendarEvents({ force: true }));
-    }, refreshMs);
-
-    return () => window.clearInterval(intervalId);
-  }, [dispatch, nextUp, nowTimestamp]);
-
+  // Sync clock on tab focus (no re-fetch — data is weekly, cache handles it)
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === "visible") {
         setNowTimestamp(Date.now());
-        void dispatch(fetchCalendarEvents({ force: true }));
       }
     };
 
-    const handleFocus = () => {
-      setNowTimestamp(Date.now());
-      void dispatch(fetchCalendarEvents({ force: true }));
-    };
-
     document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("focus", handleFocus);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("focus", handleFocus);
-    };
-  }, [dispatch]);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
 
   useEffect(() => {
     if (!notificationsEnabled) return;
@@ -381,6 +380,15 @@ const CalendarPage = () => {
       });
 
       notifiedEventsRef.current.add(notificationKey);
+    });
+
+    // Cleanup: remove entries for past events to prevent memory leak
+    const activeIds = new Set(items.map((e) => e.id));
+    notifiedEventsRef.current.forEach((key) => {
+      const eventId = key.split("-").slice(0, -1).join("-");
+      if (!activeIds.has(eventId)) {
+        notifiedEventsRef.current.delete(key);
+      }
     });
   }, [
     items,
@@ -446,12 +454,7 @@ const CalendarPage = () => {
     );
   };
 
-  const resetFilters = () => {
-    const nextPrefs: CalendarStoredPrefs = {
-      trackedIds,
-    };
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextPrefs));
+  const resetFilters = useCallback(() => {
     setRange(DEFAULT_RANGE);
     setSearch("");
     setCurrencies([]);
@@ -462,7 +465,8 @@ const CalendarPage = () => {
     setNotificationsEnabled(false);
     setNotificationMinutes(15);
     setNotificationsImportantOnly(true);
-  };
+    // useEffect with deps will persist the reset to localStorage
+  }, [browserTimezone]);
 
   const handleNotificationToggle = async (enabled: boolean) => {
     if (!enabled) {
@@ -799,7 +803,7 @@ const CalendarPage = () => {
                                 onPress={() => toggleTracked(event.id)}>
                                 {tracked ? t("calendar.untrack") : t("calendar.track")}
                               </Button>
-                              {event.url && (
+                              {isSafeUrl(event.url) && (
                                 <Button
                                   as="a"
                                   href={event.url}
@@ -904,11 +908,13 @@ const CalendarPage = () => {
                       variant="flat">
                       {t(`calendar.status.${getEventStatus(selectedEvent, now)}`)}
                     </Chip>
-                    <Chip size="sm" variant="flat">
-                      {t("calendar.startsIn", {
-                        value: formatCountdown(selectedEvent.timestamp, nowTimestamp),
-                      })}
-                    </Chip>
+                    {getEventStatus(selectedEvent, now) !== "past" && (
+                      <Chip size="sm" variant="flat">
+                        {t("calendar.startsIn", {
+                          value: formatCountdown(selectedEvent.timestamp, nowTimestamp),
+                        })}
+                      </Chip>
+                    )}
                   </div>
 
                   <div>
@@ -931,7 +937,7 @@ const CalendarPage = () => {
                     </div>
                   </div>
 
-                  {selectedEvent.url && (
+                  {isSafeUrl(selectedEvent.url) && (
                     <Button
                       as="a"
                       href={selectedEvent.url}
