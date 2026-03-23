@@ -94,7 +94,11 @@
       "Bash(npm ls:*)",
       "Bash(npm install:*)",
       "Bash(npm run:*)",
-      "Bash(where npm:*)"
+      "Bash(where npm:*)",
+      "Bash(tar -czf ~/Downloads/claude-config.tar.gz -C ~ .claude/CLAUDE.md .claude/settings.json .claude/agents .claude/skills .claude/commands .claude/hooks .claude/docs .claude/plugins .claude/projects)",
+      "Bash(git add:*)",
+      "Bash(git rebase:*)",
+      "Bash(GIT_EDITOR=true git rebase --continue)"
     ]
   }
 }
