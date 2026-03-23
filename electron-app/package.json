@@ -7,11 +7,11 @@
     "license": "MIT",
     "scripts": {
         "start": "electron .",
-        "build": "npm run build:web && electron-builder",
-        "build:web": "cd .. && npm run build && cp -r dist electron-app/",
-        "build:win": "npm run build:web && electron-builder --win",
-        "build:mac": "npm run build:web && electron-builder --mac",
-        "build:all": "npm run build:web && electron-builder --win --mac"
+        "build": "node scripts/build-web.js && electron-builder",
+        "build:web": "node scripts/build-web.js",
+        "build:win": "node scripts/build-web.js && electron-builder --win",
+        "build:mac": "node scripts/build-web.js && electron-builder --mac",
+        "build:all": "node scripts/build-web.js && electron-builder --win --mac"
     },
     "build": {
         "appId": "com.grafsoul.trader-journal",
@@ -23,6 +23,7 @@
             "main.js",
             "preload.js",
             "titlebar.js",
+            "config.generated.js",
             "dist/**/*"
         ],
         "mac": {

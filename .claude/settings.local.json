@@ -92,7 +92,8 @@
       "Bash(grep -r \"Modal\\\\|Dialog\\\\|Sheet\\\\|Popover\" /Volumes/PROJECTS/PROJECTS/SAAS/trader-journal/src/components/ --include=*.tsx --include=*.ts -l)",
       "Bash(cat /Volumes/PROJECTS/PROJECTS/SAAS/trader-journal/supabase/migrations/20240105*.sql)",
       "Bash(npm ls:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

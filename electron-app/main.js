@@ -4,32 +4,26 @@ const fs = require('fs');
 const https = require('https');
 const http = require('http');
 
-// ==================== LOAD .env.local ====================
-function loadEnvFile() {
-    const envPath = path.join(__dirname, '..', '.env.local');
+// ==================== EMBEDDED CONFIG (baked in at build time) ====================
+let _config = {};
+try {
+    _config = require('./config.generated.js');
+} catch {
+    // dev mode without a build — fall back to .env.local
     try {
-        const content = fs.readFileSync(envPath, 'utf8');
-        for (const line of content.split('\n')) {
-            const trimmed = line.trim();
-            if (!trimmed || trimmed.startsWith('#')) continue;
-            const eqIdx = trimmed.indexOf('=');
-            if (eqIdx === -1) continue;
-            const key = trimmed.slice(0, eqIdx).trim();
-            let value = trimmed.slice(eqIdx + 1).trim();
-            // Strip surrounding quotes
-            if ((value.startsWith('"') && value.endsWith('"')) ||
-                (value.startsWith("'") && value.endsWith("'"))) {
-                value = value.slice(1, -1);
-            }
-            // Always overwrite — .env.local takes priority
-            process.env[key] = value;
+        const envPath = require('path').join(__dirname, '..', '.env.local');
+        const lines = require('fs').readFileSync(envPath, 'utf8').split('\n');
+        for (const line of lines) {
+            const t = line.trim();
+            if (!t || t.startsWith('#')) continue;
+            const idx = t.indexOf('=');
+            if (idx === -1) continue;
+            let v = t.slice(idx + 1).trim();
+            if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1);
+            _config[t.slice(0, idx).trim()] = v;
         }
-        console.log('[ENV] Loaded .env.local:', envPath);
-    } catch (err) {
-        console.warn('[ENV] .env.local not found:', envPath, err.message);
-    }
+    } catch { /* ignore */ }
 }
-loadEnvFile();
 
 let mainWindow;
 let isAlwaysOnTop = false;
@@ -241,7 +235,7 @@ const AI_MODEL = 'google/gemini-2.5-flash';
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 ipcMain.handle('ai-discuss', async (event, request) => {
-    const apiKey = process.env.OPENROUTER_API_KEY ?? '';
+    const apiKey = _config.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY || '';
 
     if (!apiKey) {
         return { ok: false, error: 'OPENROUTER_API_KEY not configured. Add it to .env.local' };
