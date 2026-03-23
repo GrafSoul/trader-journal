@@ -29,7 +29,7 @@ export const ForgotPasswordForm = () => {
     formState: { errors, touchedFields, isValid, isDirty },
   } = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: {
       email: "",
     },
@@ -91,8 +91,8 @@ export const ForgotPasswordForm = () => {
         type="email"
         label={t("auth.email")}
         placeholder="email@example.com"
-        isInvalid={!!errors.email}
-        errorMessage={errors.email && t(errors.email.message as string)}
+        isInvalid={!!errors.email && !!touchedFields.email}
+        errorMessage={errors.email && touchedFields.email && t(errors.email.message as string)}
         isDisabled={isLoading}
         autoComplete="email"
         endContent={

@@ -25,7 +25,7 @@ export const LoginForm = () => {
     formState: { errors, touchedFields, isValid, isDirty },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: {
       email: "",
       password: "",
@@ -63,8 +63,8 @@ export const LoginForm = () => {
         type="email"
         label={t("auth.email")}
         placeholder="email@example.com"
-        isInvalid={!!errors.email}
-        errorMessage={errors.email && t(errors.email.message as string)}
+        isInvalid={!!errors.email && !!touchedFields.email}
+        errorMessage={errors.email && touchedFields.email && t(errors.email.message as string)}
         isDisabled={isLoading}
         autoComplete="email"
         endContent={
@@ -93,8 +93,8 @@ export const LoginForm = () => {
         type={showPassword ? "text" : "password"}
         label={t("auth.password")}
         placeholder="••••••••"
-        isInvalid={!!errors.password}
-        errorMessage={errors.password && t(errors.password.message as string)}
+        isInvalid={!!errors.password && !!touchedFields.password}
+        errorMessage={errors.password && touchedFields.password && t(errors.password.message as string)}
         isDisabled={isLoading}
         autoComplete="current-password"
         endContent={

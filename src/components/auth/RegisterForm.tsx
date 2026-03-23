@@ -28,7 +28,7 @@ export const RegisterForm = () => {
     formState: { errors, touchedFields, isValid, isDirty },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: {
       displayName: "",
       email: "",
@@ -83,9 +83,9 @@ export const RegisterForm = () => {
         type="text"
         label={t("auth.displayName")}
         placeholder={t("auth.displayNamePlaceholder")}
-        isInvalid={!!errors.displayName}
+        isInvalid={!!errors.displayName && !!touchedFields.displayName}
         errorMessage={
-          errors.displayName && t(errors.displayName.message as string)
+          errors.displayName && touchedFields.displayName && t(errors.displayName.message as string)
         }
         isDisabled={isLoading}
         autoComplete="name"
@@ -115,8 +115,8 @@ export const RegisterForm = () => {
         type="email"
         label={t("auth.email")}
         placeholder="email@example.com"
-        isInvalid={!!errors.email}
-        errorMessage={errors.email && t(errors.email.message as string)}
+        isInvalid={!!errors.email && !!touchedFields.email}
+        errorMessage={errors.email && touchedFields.email && t(errors.email.message as string)}
         isDisabled={isLoading}
         autoComplete="email"
         endContent={
@@ -146,7 +146,7 @@ export const RegisterForm = () => {
           type={showPassword ? "text" : "password"}
           label={t("auth.password")}
           placeholder="••••••••"
-          isInvalid={!!errors.password}
+          isInvalid={!!errors.password && !!touchedFields.password}
           isDisabled={isLoading}
           autoComplete="new-password"
           endContent={
@@ -190,9 +190,9 @@ export const RegisterForm = () => {
         type={showConfirmPassword ? "text" : "password"}
         label={t("auth.confirmPassword")}
         placeholder="••••••••"
-        isInvalid={!!errors.confirmPassword}
+        isInvalid={!!errors.confirmPassword && !!touchedFields.confirmPassword}
         errorMessage={
-          errors.confirmPassword && t(errors.confirmPassword.message as string)
+          errors.confirmPassword && touchedFields.confirmPassword && t(errors.confirmPassword.message as string)
         }
         isDisabled={isLoading}
         autoComplete="new-password"

@@ -33,7 +33,7 @@ export const ResetPasswordForm = () => {
     formState: { errors, touchedFields, isValid, isDirty },
   } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: {
       password: "",
       confirmPassword: "",
@@ -96,7 +96,7 @@ export const ResetPasswordForm = () => {
           type={showPassword ? "text" : "password"}
           label={t("auth.newPassword")}
           placeholder="••••••••"
-          isInvalid={!!errors.password}
+          isInvalid={!!errors.password && !!touchedFields.password}
           isDisabled={isLoading}
           autoComplete="new-password"
           endContent={
@@ -140,9 +140,9 @@ export const ResetPasswordForm = () => {
         type={showConfirmPassword ? "text" : "password"}
         label={t("auth.confirmPassword")}
         placeholder="••••••••"
-        isInvalid={!!errors.confirmPassword}
+        isInvalid={!!errors.confirmPassword && !!touchedFields.confirmPassword}
         errorMessage={
-          errors.confirmPassword && t(errors.confirmPassword.message as string)
+          errors.confirmPassword && touchedFields.confirmPassword && t(errors.confirmPassword.message as string)
         }
         isDisabled={isLoading}
         autoComplete="new-password"
