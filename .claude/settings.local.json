@@ -98,7 +98,14 @@
       "Bash(tar -czf ~/Downloads/claude-config.tar.gz -C ~ .claude/CLAUDE.md .claude/settings.json .claude/agents .claude/skills .claude/commands .claude/hooks .claude/docs .claude/plugins .claude/projects)",
       "Bash(git add:*)",
       "Bash(git rebase:*)",
-      "Bash(GIT_EDITOR=true git rebase --continue)"
+      "Bash(GIT_EDITOR=true git rebase --continue)",
+      "WebSearch",
+      "Bash(curl -s https://raw.githubusercontent.com/southleft/figma-console-mcp/main/README.md)",
+      "Bash(curl -s https://docs.figma-console-mcp.southleft.com)",
+      "Bash(python3 -m json.tool)",
+      "Bash(claude mcp:*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''''mcpServers'''',{}\\), indent=2\\)\\)\")",
+      "Bash(xargs -I {} basename {})"
     ]
   }
 }
